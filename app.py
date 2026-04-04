@@ -14,7 +14,7 @@ from dotenv import load_dotenv
 # Load environment variables from .env BEFORE anything else
 load_dotenv()
 
-from flask import Flask, render_template, request, jsonify, send_from_directory
+from flask import Flask, render_template, request, jsonify, send_from_directory, session
 from quantum_sim import full_bb84_exchange, QUBIT_STATES
 from crypto_utils import encrypt_message, decrypt_message
 from smtp_service import SMTPService
@@ -49,6 +49,48 @@ def login():
 def app_page():
     """Post-login redirect — serves the main app page."""
     return render_template("index.html")
+
+
+@app.route("/profile")
+def profile():
+    """Serve the profile dashboard."""
+    if "profile" not in session:
+        session["profile"] = {
+            "name": "Quantum Agent",
+            "handle": "@agent_q",
+            "bio": "Initialize quantum link to begin.",
+            "avatar": "cyber"
+        }
+    if "stats" not in session:
+        session["stats"] = {
+            "keys_generated": 0,
+            "total_qubits_sent": 0,
+            "messages_encrypted": 0,
+            "messages_decrypted": 0
+        }
+    if "activity_log" not in session:
+        session["activity_log"] = []
+
+    return render_template(
+        "profile.html",
+        profile=session["profile"],
+        stats=session["stats"],
+        activity_log=session["activity_log"]
+    )
+
+
+@app.route("/api/profile/update", methods=["POST"])
+def update_profile():
+    """Update user profile in session."""
+    data = request.get_json(force=True)
+    session["profile"] = {
+        "name": data.get("name", "Quantum Agent"),
+        "handle": data.get("handle", "@agent_q"),
+        "bio": data.get("bio", ""),
+        "avatar": data.get("avatar", "cyber")
+    }
+    session.modified = True
+    return jsonify({"success": True})
 
 
 @app.route("/api/firebase-config")

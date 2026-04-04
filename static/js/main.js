@@ -199,6 +199,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Check SMTP status on load
     checkSmtpStatus();
+
+    // Check for decrypt params from email link (/decrypt?nonce=...&ciphertext=...)
+    checkDecryptParams();
 });
 
 // ============================================================
@@ -768,4 +771,49 @@ async function sendEncryptedEmail() {
         btn.classList.remove('loading');
         btn.disabled = false;
     }
+}
+
+// ============================================================
+// Decrypt from Email Link
+// ============================================================
+
+function checkDecryptParams() {
+    const params = new URLSearchParams(window.location.search);
+    const nonce = params.get('nonce');
+    const ciphertext = params.get('ciphertext');
+
+    if (!nonce || !ciphertext) return;
+
+    // Pre-fill the decrypt form
+    const nonceInput = document.getElementById('decrypt-nonce');
+    const ciphertextInput = document.getElementById('decrypt-ciphertext');
+    const keyInput = document.getElementById('decrypt-key');
+
+    if (nonceInput) nonceInput.value = nonce;
+    if (ciphertextInput) ciphertextInput.value = ciphertext;
+
+    // Scroll to the encryption section after a short delay
+    setTimeout(() => {
+        const section = document.getElementById('encryption');
+        if (section) {
+            section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+
+        // Highlight the decrypt panel
+        const decryptPanel = ciphertextInput?.closest('.glass-card');
+        if (decryptPanel) {
+            decryptPanel.style.border = '1px solid var(--cyan)';
+            decryptPanel.style.boxShadow = '0 0 20px rgba(0, 229, 255, 0.2)';
+            setTimeout(() => {
+                decryptPanel.style.border = '';
+                decryptPanel.style.boxShadow = '';
+            }, 4000);
+        }
+
+        // Focus the key input so the user can paste their key
+        if (keyInput) {
+            keyInput.focus();
+            keyInput.placeholder = 'Paste your shared quantum key here to decrypt';
+        }
+    }, 500);
 }

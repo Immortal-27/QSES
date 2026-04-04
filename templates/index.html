@@ -564,7 +564,9 @@
         import {
             getAuth,
             onAuthStateChanged,
-            signOut
+            signOut,
+            browserLocalPersistence,
+            setPersistence
         } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-auth.js";
 
         async function initNavAuth() {
@@ -576,6 +578,9 @@
 
                 const app = initializeApp(config);
                 const auth = getAuth(app);
+
+                // Keep user logged in even after leaving the site or closing the tab
+                await setPersistence(auth, browserLocalPersistence);
 
                 const loginBtn = document.getElementById('nav-login-btn');
                 const profileEl = document.getElementById('nav-profile');

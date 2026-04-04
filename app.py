@@ -51,6 +51,18 @@ def app_page():
     return render_template("index.html")
 
 
+@app.route("/decrypt")
+def decrypt_page():
+    """
+    Decrypt landing page — linked from emails.
+
+    Accepts query params ?nonce=...&ciphertext=... and serves the
+    main page. JavaScript reads the URL params and pre-fills the
+    decrypt form so the recipient only needs to enter the key.
+    """
+    return render_template("index.html")
+
+
 @app.route("/api/firebase-config")
 def firebase_config():
     """Serve Firebase client configuration from environment variables."""
@@ -285,12 +297,16 @@ def smtp_send():
         # Step 1: Encrypt the message
         encrypted_payload = encrypt_message(message, key_hex)
 
-        # Step 2: Send via SMTP
+        # Step 2: Determine base URL for the decrypt link in the email
+        base_url = request.url_root.rstrip("/")
+
+        # Step 3: Send via SMTP
         send_result = smtp.send_encrypted_email(
             recipient=recipient,
             subject=subject,
             encrypted_payload=encrypted_payload,
             original_length=len(message),
+            base_url=base_url,
         )
 
         if send_result["success"]:

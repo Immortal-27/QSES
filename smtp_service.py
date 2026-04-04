@@ -181,6 +181,7 @@ class SMTPService:
         subject: str,
         encrypted_payload: dict,
         original_length: int,
+        base_url: str = "http://127.0.0.1:5000",
     ) -> dict:
         """
         Send an encrypted email payload via SMTP.
@@ -190,6 +191,7 @@ class SMTPService:
             subject: Email subject line
             encrypted_payload: dict with 'ciphertext', 'nonce', 'algorithm', etc.
             original_length: Length of the original plaintext message
+            base_url: The QSES app's base URL for the decrypt link
 
         Returns:
             dict with 'success' (bool), 'message' (str), and optional metadata
@@ -216,12 +218,20 @@ class SMTPService:
 
             timestamp = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S UTC")
 
+            # Build the decrypt URL with nonce + ciphertext as query params
+            from urllib.parse import urlencode, quote
+            decrypt_params = urlencode({
+                "nonce": encrypted_payload.get("nonce", ""),
+                "ciphertext": encrypted_payload.get("ciphertext", ""),
+            }, quote_via=quote)
+            decrypt_url = f"{base_url.rstrip('/')}/decrypt?{decrypt_params}"
+
             # Plain text version (for clients that don't render HTML)
-            plain_body = self._build_plain_body(encrypted_payload, timestamp, original_length)
+            plain_body = self._build_plain_body(encrypted_payload, timestamp, original_length, decrypt_url)
             msg.attach(MIMEText(plain_body, "plain", "utf-8"))
 
             # HTML version
-            html_body = self._build_html_body(encrypted_payload, timestamp, original_length, subject)
+            html_body = self._build_html_body(encrypted_payload, timestamp, original_length, subject, decrypt_url)
             msg.attach(MIMEText(html_body, "html", "utf-8"))
 
             # Send
@@ -278,9 +288,9 @@ class SMTPService:
         return f"{masked}@{domain}"
 
     @staticmethod
-    def _build_plain_body(payload: dict, timestamp: str, original_length: int) -> str:
+    def _build_plain_body(payload: dict, timestamp: str, original_length: int, decrypt_url: str = "") -> str:
         """Build a plain-text email body with the encrypted payload."""
-        return (
+        body = (
             "═══════════════════════════════════════════════════\n"
             "  QUANTUM-SIMULATED ENCRYPTED MESSAGE (QSES)\n"
             "═══════════════════════════════════════════════════\n\n"
@@ -295,17 +305,34 @@ class SMTPService:
             f"Nonce (Base64):\n{payload.get('nonce', 'N/A')}\n\n"
             f"Ciphertext (Base64):\n{payload.get('ciphertext', 'N/A')}\n\n"
             "--- END ENCRYPTED PAYLOAD ---\n\n"
-            "To decrypt this message, the recipient needs:\n"
-            "1. The shared quantum-derived key (AES-256 hex)\n"
-            "2. The nonce and ciphertext above\n"
-            "3. The QSES decryption tool\n\n"
+        )
+        if decrypt_url:
+            body += (
+                "DECRYPT THIS MESSAGE:\n"
+                f"{decrypt_url}\n\n"
+            )
+        body += (
+            "To decrypt, you need the shared quantum-derived key (AES-256 hex).\n\n"
             "DISCLAIMER: This is a classical simulation of quantum\n"
             "key distribution — not real QKD hardware.\n"
         )
+        return body
 
     @staticmethod
-    def _build_html_body(payload: dict, timestamp: str, original_length: int, subject: str) -> str:
-        """Build a styled HTML email body with the encrypted payload."""
+    def _build_html_body(payload: dict, timestamp: str, original_length: int, subject: str, decrypt_url: str = "") -> str:
+        """Build a styled HTML email body with the encrypted payload and decrypt button."""
+
+        # Build the decrypt button HTML (only if URL provided)
+        decrypt_button_html = ""
+        if decrypt_url:
+            decrypt_button_html = f"""
+  <!-- Decrypt Button -->
+  <div style="padding:24px;background:rgba(15,15,35,0.9);border-left:1px solid rgba(0,229,255,0.15);border-right:1px solid rgba(0,229,255,0.15);text-align:center;">
+    <a href="{decrypt_url}" target="_blank" style="display:inline-block;padding:14px 36px;background:linear-gradient(135deg,#00e5ff,#00b8d4);color:#07070e;font-size:15px;font-weight:700;text-decoration:none;border-radius:12px;letter-spacing:0.5px;">🔓 Decrypt This Message</a>
+    <p style="margin:12px 0 0;font-size:11px;color:#5c6bc0;">You will need the shared quantum-derived key to decrypt.</p>
+  </div>
+"""
+
         return f"""\
 <!DOCTYPE html>
 <html>
@@ -352,6 +379,7 @@ class SMTPService:
     </div>
   </div>
 
+{decrypt_button_html}
   <!-- Footer -->
   <div style="padding:20px 24px;background:rgba(15,15,35,0.8);border-radius:0 0 16px 16px;border:1px solid rgba(0,229,255,0.15);border-top:none;text-align:center;">
     <p style="margin:0 0 8px;font-size:12px;color:#5c6bc0;">

@@ -1,16 +1,21 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Quantum-Simulated Email Security — A demonstration of BB84 quantum key distribution protocol with AES-256-GCM encryption for secure email communication.">
+    <meta name="description"
+        content="Quantum-Simulated Email Security — A demonstration of BB84 quantum key distribution protocol with AES-256-GCM encryption for secure email communication.">
     <title>QSES — Quantum-Simulated Email Security</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap"
+        rel="stylesheet">
     <link rel="stylesheet" href="/static/css/style.css">
     <link rel="icon" type="image/jpeg" href="/static/qses.jpg">
 </head>
+
 <body>
     <!-- 3D Chain Background -->
     <iframe id="chain-bg" src="/static/chainbg/index.html" frameborder="0" allowtransparency="true"></iframe>
@@ -18,7 +23,8 @@
     <!-- Navigation -->
     <nav class="navbar" id="navbar">
         <div class="nav-brand">
-            <span class="nav-icon"><img src="/static/qses.jpg" alt="QSES" style="height:1.4em;vertical-align:middle;border-radius:4px;"></span>
+            <span class="nav-icon"><img src="/static/qses.jpg" alt="QSES"
+                    style="height:1.4em;vertical-align:middle;border-radius:4px;"></span>
             <span class="nav-title">QSES</span>
             <span class="nav-badge">SIMULATION</span>
         </div>
@@ -43,7 +49,7 @@
                 Email Security
             </h1>
             <p class="hero-subtitle">
-                Experience the BB84 quantum key distribution protocol — simulated classically — 
+                Experience the BB84 quantum key distribution protocol — simulated classically —
                 to understand how quantum mechanics could revolutionize email encryption.
             </p>
             <div class="hero-actions">
@@ -58,7 +64,7 @@
             </div>
             <div class="hero-disclaimer">
                 <span class="disclaimer-icon">ℹ️</span>
-                <strong>Disclaimer:</strong> This is a <em>classical simulation</em> of quantum key exchange. 
+                <strong>Disclaimer:</strong> This is a <em>classical simulation</em> of quantum key exchange.
                 Real QKD requires dedicated quantum hardware and optical fiber channels.
             </div>
         </div>
@@ -92,7 +98,7 @@
                 BB84 Protocol Simulation
             </h2>
             <p class="section-desc">
-                Watch the quantum key distribution protocol unfold step by step. 
+                Watch the quantum key distribution protocol unfold step by step.
                 Alice and Bob establish a shared secret key over a potentially insecure quantum channel.
             </p>
         </div>
@@ -106,7 +112,8 @@
                 </div>
             </div>
             <button class="btn btn-primary btn-simulate" id="btn-simulate">
-                <span class="btn-icon"><img src="/static/qses.jpg" alt="QSES" style="height:1.2em;vertical-align:middle;border-radius:3px;"></span>
+                <span class="btn-icon"><img src="/static/qses.jpg" alt="QSES"
+                        style="height:1.2em;vertical-align:middle;border-radius:3px;"></span>
                 Run BB84 Exchange
                 <span class="btn-loader" id="sim-loader"></span>
             </button>
@@ -115,7 +122,8 @@
         <!-- Protocol Steps -->
         <div class="protocol-steps" id="protocol-steps">
             <div class="step-placeholder">
-                <div class="placeholder-icon"><img src="/static/qses.jpg" alt="QSES" style="height:2em;border-radius:6px;"></div>
+                <div class="placeholder-icon"><img src="/static/qses.jpg" alt="QSES"
+                        style="height:2em;border-radius:6px;"></div>
                 <p>Click "Run BB84 Exchange" to simulate the quantum key distribution protocol</p>
             </div>
         </div>
@@ -191,7 +199,7 @@
                 Quantum-Keyed Email Encryption
             </h2>
             <p class="section-desc">
-                Use the quantum-derived key to encrypt and decrypt email messages with AES-256-GCM 
+                Use the quantum-derived key to encrypt and decrypt email messages with AES-256-GCM
                 — authenticated encryption that guarantees both confidentiality and integrity.
             </p>
         </div>
@@ -204,20 +212,24 @@
                 </div>
                 <div class="form-group">
                     <label for="encrypt-recipient" class="form-label">To</label>
-                    <input type="email" id="encrypt-recipient" class="form-input" placeholder="bob@quantum-secure.io" autocomplete="off">
+                    <input type="email" id="encrypt-recipient" class="form-input" placeholder="bob@quantum-secure.io"
+                        autocomplete="off">
                 </div>
                 <div class="form-group">
                     <label for="encrypt-subject" class="form-label">Subject</label>
-                    <input type="text" id="encrypt-subject" class="form-input" placeholder="Classified: Project Quantum" autocomplete="off">
+                    <input type="text" id="encrypt-subject" class="form-input" placeholder="Classified: Project Quantum"
+                        autocomplete="off">
                 </div>
                 <div class="form-group">
                     <label for="encrypt-message" class="form-label">Message Body</label>
-                    <textarea id="encrypt-message" class="form-textarea" rows="5" placeholder="Enter your secret message here..."></textarea>
+                    <textarea id="encrypt-message" class="form-textarea" rows="5"
+                        placeholder="Enter your secret message here..."></textarea>
                 </div>
                 <div class="form-group">
                     <label class="form-label">Encryption Key</label>
                     <div class="key-input-wrapper">
-                        <input type="text" id="encrypt-key" class="form-input mono" placeholder="Run BB84 simulation first to generate a key" readonly>
+                        <input type="text" id="encrypt-key" class="form-input mono"
+                            placeholder="Run BB84 simulation first to generate a key" readonly>
                         <span class="key-source-badge" id="key-source-badge">No Key</span>
                     </div>
                 </div>
@@ -247,7 +259,8 @@
                 </div>
                 <div class="form-group">
                     <label for="decrypt-ciphertext" class="form-label">Ciphertext (Base64)</label>
-                    <textarea id="decrypt-ciphertext" class="form-textarea mono" rows="3" placeholder="Paste the encrypted ciphertext here..."></textarea>
+                    <textarea id="decrypt-ciphertext" class="form-textarea mono" rows="3"
+                        placeholder="Paste the encrypted ciphertext here..."></textarea>
                 </div>
                 <div class="form-group">
                     <label for="decrypt-nonce" class="form-label">Nonce (Base64)</label>
@@ -255,7 +268,8 @@
                 </div>
                 <div class="form-group">
                     <label for="decrypt-key" class="form-label">Decryption Key (Hex)</label>
-                    <input type="text" id="decrypt-key" class="form-input mono" placeholder="Same key used for encryption">
+                    <input type="text" id="decrypt-key" class="form-input mono"
+                        placeholder="Same key used for encryption">
                 </div>
                 <button class="btn btn-primary btn-full" id="btn-decrypt">
                     <span class="btn-icon">🔓</span>
@@ -299,7 +313,8 @@
             <div class="smtp-config-grid">
                 <div class="form-group">
                     <label for="smtp-server" class="form-label">SMTP Server</label>
-                    <input type="text" id="smtp-server" class="form-input mono" value="smtp.gmail.com" autocomplete="off">
+                    <input type="text" id="smtp-server" class="form-input mono" value="smtp.gmail.com"
+                        autocomplete="off">
                 </div>
                 <div class="form-group">
                     <label for="smtp-port" class="form-label">Port</label>
@@ -307,11 +322,13 @@
                 </div>
                 <div class="form-group">
                     <label for="smtp-email" class="form-label">Email Address</label>
-                    <input type="email" id="smtp-email" class="form-input" placeholder="your-email@gmail.com" autocomplete="off">
+                    <input type="email" id="smtp-email" class="form-input" placeholder="your-email@gmail.com"
+                        autocomplete="off">
                 </div>
                 <div class="form-group">
                     <label for="smtp-password" class="form-label">App Password</label>
-                    <input type="password" id="smtp-password" class="form-input" placeholder="Gmail App Password" autocomplete="off">
+                    <input type="password" id="smtp-password" class="form-input" placeholder="Gmail App Password"
+                        autocomplete="off">
                 </div>
             </div>
             <div class="smtp-config-actions">
@@ -332,20 +349,24 @@
                 </div>
                 <div class="form-group">
                     <label for="send-recipient" class="form-label">To</label>
-                    <input type="email" id="send-recipient" class="form-input" placeholder="recipient@example.com" autocomplete="off">
+                    <input type="email" id="send-recipient" class="form-input" placeholder="recipient@example.com"
+                        autocomplete="off">
                 </div>
                 <div class="form-group">
                     <label for="send-subject" class="form-label">Subject</label>
-                    <input type="text" id="send-subject" class="form-input" placeholder="Classified: Project Quantum" autocomplete="off">
+                    <input type="text" id="send-subject" class="form-input" placeholder="Classified: Project Quantum"
+                        autocomplete="off">
                 </div>
                 <div class="form-group">
                     <label for="send-message" class="form-label">Message Body</label>
-                    <textarea id="send-message" class="form-textarea" rows="5" placeholder="Enter your secret message to encrypt and send..."></textarea>
+                    <textarea id="send-message" class="form-textarea" rows="5"
+                        placeholder="Enter your secret message to encrypt and send..."></textarea>
                 </div>
                 <div class="form-group">
                     <label class="form-label">Encryption Key</label>
                     <div class="key-input-wrapper">
-                        <input type="text" id="send-key" class="form-input mono" placeholder="Run BB84 simulation first" readonly>
+                        <input type="text" id="send-key" class="form-input mono" placeholder="Run BB84 simulation first"
+                            readonly>
                         <span class="key-source-badge" id="send-key-badge">No Key</span>
                     </div>
                 </div>
@@ -379,7 +400,7 @@
                 Eavesdropping Detection
             </h2>
             <p class="section-desc">
-                The killer feature of quantum key distribution: detecting eavesdroppers. 
+                The killer feature of quantum key distribution: detecting eavesdroppers.
                 Toggle Eve on/off to see how the error rate reveals her presence.
             </p>
         </div>
@@ -468,10 +489,12 @@
     <footer class="footer">
         <div class="footer-content">
             <div class="footer-brand">
-                <span><img src="/static/qses.jpg" alt="QSES" style="height:1.4em;vertical-align:middle;border-radius:4px;"></span> Quantum-Simulated Email Security
+                <span><img src="/static/qses.jpg" alt="QSES"
+                        style="height:1.4em;vertical-align:middle;border-radius:4px;"></span> Quantum-Simulated Email
+                Security
             </div>
             <div class="footer-disclaimer">
-                Built for educational purposes. This is a <strong>classical simulation</strong> — 
+                Built for educational purposes. This is a <strong>classical simulation</strong> —
                 not real quantum key distribution. Real QKD requires quantum hardware.
             </div>
             <div class="footer-tech">
@@ -482,4 +505,5 @@
 
     <script src="/static/js/main.js"></script>
 </body>
+
 </html>

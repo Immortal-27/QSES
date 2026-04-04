@@ -1,0 +1,19 @@
+import { Loader } from 'three/src/loaders/Loader.js';
+import { LoadingManager } from 'three/src/loaders/LoadingManager.js';
+import { Texture } from 'three/src/textures/Texture.js';
+import { Material } from 'three/src/materials/Material.js';
+
+export class MaterialLoader extends Loader<Material> {
+    /**
+     * @default {}
+     */
+    textures: { [key: string]: Texture };
+
+    constructor(manager?: LoadingManager);
+
+    parse(json: unknown): Material;
+
+    setTextures(textures: { [key: string]: Texture }): this;
+
+    static createMaterialFromType(type: string): Material;
+}

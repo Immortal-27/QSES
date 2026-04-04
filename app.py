@@ -8,13 +8,20 @@ DISCLAIMER: This is a SIMULATION of quantum key exchange using classical computi
 Real quantum key distribution requires dedicated quantum hardware and optical channels.
 """
 
-from flask import Flask, render_template, request, jsonify
+from flask import Flask, render_template, request, jsonify, send_from_directory
 from quantum_sim import full_bb84_exchange, QUBIT_STATES
 from crypto_utils import encrypt_message, decrypt_message
 from cryptography.exceptions import InvalidTag
 from dataclasses import asdict
+import os
 
 app = Flask(__name__)
+
+
+@app.route("/chain.glb")
+def serve_chain_model():
+    """Serve the 3D chain model from the chainbg static folder."""
+    return send_from_directory(os.path.join(app.static_folder, "chainbg"), "chain.glb")
 
 
 @app.route("/")

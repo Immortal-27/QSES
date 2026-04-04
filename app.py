@@ -217,8 +217,9 @@ def decrypt():
     Decrypt an encrypted message using the quantum-derived key.
 
     Request JSON:
-        nonce (str): Base64-encoded nonce
-        ciphertext (str): Base64-encoded ciphertext
+        nonce (str): Hex-encoded nonce
+        ciphertext (str): Hex-encoded ciphertext
+        hmac (str): Hex-encoded HMAC-SHA256 tag
         key (str): Hex key from BB84 simulation
 
     Returns JSON with the decrypted plaintext.
@@ -226,17 +227,24 @@ def decrypt():
     data = request.get_json(force=True)
     nonce = data.get("nonce", "")
     ciphertext = data.get("ciphertext", "")
+    hmac_tag = data.get("hmac", "")
     key_hex = data.get("key", "")
 
     if not all([nonce, ciphertext, key_hex]):
         return jsonify({"success": False, "error": "Missing nonce, ciphertext, or key"}), 400
 
     try:
-        plaintext = decrypt_message(nonce, ciphertext, key_hex)
+        plaintext = decrypt_message(nonce, ciphertext, key_hex, hmac_tag=hmac_tag)
         return jsonify({
             "success": True,
             "plaintext": plaintext,
         })
+    except ValueError as e:
+        return jsonify({
+            "success": False,
+            "error": str(e),
+            "tampered": True,
+        }), 400
     except InvalidTag:
         return jsonify({
             "success": False,

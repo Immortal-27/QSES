@@ -406,15 +406,19 @@ async function encryptMessage() {
                 <div class="result-data">
                     <div class="result-field">
                         <div class="result-field-label">Algorithm</div>
-                        <div class="result-field-value">${enc.algorithm} • ${enc.key_derivation} • ${enc.key_source}</div>
+                        <div class="result-field-value">${enc.algorithm} • ${enc.integrity} • ${enc.key_derivation} • ${enc.key_source}</div>
                     </div>
                     <div class="result-field">
-                        <div class="result-field-label">Nonce (Base64)</div>
+                        <div class="result-field-label">Nonce (Hex)</div>
                         <div class="result-field-value">${enc.nonce}</div>
                     </div>
                     <div class="result-field">
-                        <div class="result-field-label">Ciphertext (Base64)</div>
+                        <div class="result-field-label">Ciphertext (Hex)</div>
                         <div class="result-field-value">${enc.ciphertext}</div>
+                    </div>
+                    <div class="result-field">
+                        <div class="result-field-label">HMAC-SHA256 Tag</div>
+                        <div class="result-field-value" style="color:#ff9100;">${enc.hmac}</div>
                     </div>
                     <div class="result-field">
                         <div class="result-field-label">Original → Encrypted</div>
@@ -426,6 +430,7 @@ async function encryptMessage() {
             // Auto-fill decrypt fields
             document.getElementById('decrypt-ciphertext').value = enc.ciphertext;
             document.getElementById('decrypt-nonce').value = enc.nonce;
+            document.getElementById('decrypt-hmac').value = enc.hmac;
             document.getElementById('decrypt-key').value = key;
         } else {
             resultDiv.innerHTML = `<div class="result-data"><div class="result-field"><div class="result-field-label">Error</div><div class="result-field-value error">${data.error}</div></div></div>`;
@@ -438,6 +443,7 @@ async function encryptMessage() {
 async function decryptMessage() {
     const ciphertext = document.getElementById('decrypt-ciphertext').value;
     const nonce = document.getElementById('decrypt-nonce').value;
+    const hmacTag = document.getElementById('decrypt-hmac').value;
     const key = document.getElementById('decrypt-key').value;
     const resultDiv = document.getElementById('decrypt-result');
 
@@ -451,7 +457,7 @@ async function decryptMessage() {
         const res = await fetch('/api/decrypt', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ ciphertext, nonce, key }),
+            body: JSON.stringify({ ciphertext, nonce, hmac: hmacTag, key }),
         });
         const data = await res.json();
 

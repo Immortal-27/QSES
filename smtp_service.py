@@ -295,24 +295,22 @@ class SMTPService:
             "  QUANTUM-SIMULATED ENCRYPTED MESSAGE (QSES)\n"
             "═══════════════════════════════════════════════════\n\n"
             "This email contains an encrypted message secured with\n"
-            "a quantum-simulated key (BB84 protocol + AES-256-GCM).\n\n"
+            "a quantum-simulated key (BB84 protocol + AES-256-GCM + HMAC-SHA256).\n\n"
             "--- ENCRYPTED PAYLOAD ---\n\n"
             f"Algorithm:      {payload.get('algorithm', 'AES-256-GCM')}\n"
+            f"Integrity:      {payload.get('integrity', 'HMAC-SHA256')}\n"
             f"Key Derivation: {payload.get('key_derivation', 'HKDF-SHA256')}\n"
             f"Key Source:     {payload.get('key_source', 'BB84-Simulated-QKD')}\n"
             f"Original Size:  {original_length} characters\n"
             f"Timestamp:      {timestamp}\n\n"
-            f"Nonce (Base64):\n{payload.get('nonce', 'N/A')}\n\n"
-            f"Ciphertext (Base64):\n{payload.get('ciphertext', 'N/A')}\n\n"
+            f"Nonce (Hex):\n{payload.get('nonce', 'N/A')}\n\n"
+            f"Ciphertext (Hex):\n{payload.get('ciphertext', 'N/A')}\n\n"
+            f"HMAC-SHA256 Tag:\n{payload.get('hmac', 'N/A')}\n\n"
             "--- END ENCRYPTED PAYLOAD ---\n\n"
-        )
-        if decrypt_url:
-            body += (
-                "DECRYPT THIS MESSAGE:\n"
-                f"{decrypt_url}\n\n"
-            )
-        body += (
-            "To decrypt, you need the shared quantum-derived key (AES-256 hex).\n\n"
+            "To decrypt this message, the recipient needs:\n"
+            "1. The shared quantum-derived key (AES-256 hex)\n"
+            "2. The nonce, ciphertext, and HMAC tag above\n"
+            "3. The QSES decryption tool\n\n"
             "DISCLAIMER: This is a classical simulation of quantum\n"
             "key distribution — not real QKD hardware.\n"
         )
@@ -357,6 +355,7 @@ class SMTPService:
   <div style="padding:20px 24px;background:rgba(15,15,35,0.85);border-left:1px solid rgba(0,229,255,0.15);border-right:1px solid rgba(0,229,255,0.15);">
     <table style="width:100%;font-size:13px;color:#9fa8da;border-collapse:collapse;">
       <tr><td style="padding:6px 0;color:#5c6bc0;">Algorithm</td><td style="padding:6px 0;text-align:right;color:#00e5ff;">{payload.get('algorithm', 'AES-256-GCM')}</td></tr>
+      <tr><td style="padding:6px 0;color:#5c6bc0;">Integrity</td><td style="padding:6px 0;text-align:right;color:#ff9100;">{payload.get('integrity', 'HMAC-SHA256')}</td></tr>
       <tr><td style="padding:6px 0;color:#5c6bc0;">Key Derivation</td><td style="padding:6px 0;text-align:right;color:#b388ff;">{payload.get('key_derivation', 'HKDF-SHA256')}</td></tr>
       <tr><td style="padding:6px 0;color:#5c6bc0;">Key Source</td><td style="padding:6px 0;text-align:right;color:#69f0ae;">{payload.get('key_source', 'BB84-Simulated-QKD')}</td></tr>
       <tr><td style="padding:6px 0;color:#5c6bc0;">Original Size</td><td style="padding:6px 0;text-align:right;">{original_length} chars</td></tr>
@@ -368,14 +367,19 @@ class SMTPService:
   <div style="padding:20px 24px;background:rgba(10,10,25,0.95);border-left:1px solid rgba(0,229,255,0.15);border-right:1px solid rgba(0,229,255,0.15);">
     <p style="margin:0 0 12px;font-size:11px;color:#00e5ff;text-transform:uppercase;letter-spacing:1.5px;font-weight:700;">🔒 Encrypted Payload</p>
 
-    <p style="margin:0 0 4px;font-size:10px;color:#5c6bc0;text-transform:uppercase;letter-spacing:1px;">Nonce (Base64)</p>
+    <p style="margin:0 0 4px;font-size:10px;color:#5c6bc0;text-transform:uppercase;letter-spacing:1px;">Nonce (Hex)</p>
     <div style="padding:10px 14px;background:rgba(0,0,0,0.4);border-radius:8px;border:1px solid rgba(99,110,180,0.15);margin-bottom:14px;">
       <code style="font-family:'Courier New',monospace;font-size:12px;color:#00e5ff;word-break:break-all;">{payload.get('nonce', 'N/A')}</code>
     </div>
 
-    <p style="margin:0 0 4px;font-size:10px;color:#5c6bc0;text-transform:uppercase;letter-spacing:1px;">Ciphertext (Base64)</p>
-    <div style="padding:10px 14px;background:rgba(0,0,0,0.4);border-radius:8px;border:1px solid rgba(99,110,180,0.15);">
+    <p style="margin:0 0 4px;font-size:10px;color:#5c6bc0;text-transform:uppercase;letter-spacing:1px;">Ciphertext (Hex)</p>
+    <div style="padding:10px 14px;background:rgba(0,0,0,0.4);border-radius:8px;border:1px solid rgba(99,110,180,0.15);margin-bottom:14px;">
       <code style="font-family:'Courier New',monospace;font-size:12px;color:#b388ff;word-break:break-all;">{payload.get('ciphertext', 'N/A')}</code>
+    </div>
+
+    <p style="margin:0 0 4px;font-size:10px;color:#5c6bc0;text-transform:uppercase;letter-spacing:1px;">HMAC-SHA256 Tag</p>
+    <div style="padding:10px 14px;background:rgba(0,0,0,0.4);border-radius:8px;border:1px solid rgba(99,110,180,0.15);">
+      <code style="font-family:'Courier New',monospace;font-size:12px;color:#ff9100;word-break:break-all;">{payload.get('hmac', 'N/A')}</code>
     </div>
   </div>
 

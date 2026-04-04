@@ -127,6 +127,7 @@ const state = {
     lastSimulation: null,
     secureErrorRate: null,
     eveErrorRate: null,
+    smtpConfigured: false,
 };
 
 // ============================================================
@@ -190,6 +191,14 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('btn-decrypt')?.addEventListener('click', decryptMessage);
     document.getElementById('btn-eve-simulate')?.addEventListener('click', runEveDetection);
     document.getElementById('btn-copy-key')?.addEventListener('click', copyKey);
+
+    // SMTP handlers
+    document.getElementById('btn-toggle-smtp-config')?.addEventListener('click', toggleSmtpConfig);
+    document.getElementById('btn-smtp-save')?.addEventListener('click', configureSmtp);
+    document.getElementById('btn-send-email')?.addEventListener('click', sendEncryptedEmail);
+
+    // Check SMTP status on load
+    checkSmtpStatus();
 });
 
 // ============================================================
@@ -330,6 +339,17 @@ function updateEncryptionKey() {
         badge.className = 'key-source-badge has-key';
 
         if (decryptKey) decryptKey.value = state.currentKey;
+
+        // Also fill the send-email key field
+        const sendKey = document.getElementById('send-key');
+        const sendBadge = document.getElementById('send-key-badge');
+        if (sendKey) {
+            sendKey.value = state.currentKey;
+        }
+        if (sendBadge) {
+            sendBadge.textContent = 'BB84 Key';
+            sendBadge.className = 'key-source-badge has-key';
+        }
     }
 }
 
@@ -574,4 +594,178 @@ function showError(containerId, message) {
             <p style="color: var(--red);">${message}</p>
         </div>
     `;
+}
+
+// ============================================================
+// SMTP Integration
+// ============================================================
+
+async function checkSmtpStatus() {
+    const dot = document.getElementById('smtp-status-dot');
+    const text = document.getElementById('smtp-status-text');
+
+    try {
+        const res = await fetch('/api/smtp/status');
+        const data = await res.json();
+
+        state.smtpConfigured = data.configured;
+
+        if (data.configured) {
+            dot.className = 'smtp-status-dot configured';
+            text.textContent = `SMTP ready — ${data.masked_email} via ${data.server}`;
+        } else {
+            dot.className = 'smtp-status-dot not-configured';
+            text.textContent = 'SMTP not configured — click Configure to set up';
+        }
+    } catch (err) {
+        dot.className = 'smtp-status-dot not-configured';
+        text.textContent = 'Could not reach server';
+    }
+}
+
+function toggleSmtpConfig() {
+    const panel = document.getElementById('smtp-config-panel');
+    const isHidden = panel.style.display === 'none';
+    panel.style.display = isHidden ? 'block' : 'none';
+
+    if (isHidden) {
+        panel.style.animation = 'stepFadeIn 0.3s ease forwards';
+    }
+}
+
+async function configureSmtp() {
+    const btn = document.getElementById('btn-smtp-save');
+    const resultDiv = document.getElementById('smtp-config-result');
+
+    const server = document.getElementById('smtp-server').value.trim();
+    const port = parseInt(document.getElementById('smtp-port').value) || 587;
+    const email = document.getElementById('smtp-email').value.trim();
+    const password = document.getElementById('smtp-password').value;
+
+    if (!email || !password) {
+        resultDiv.innerHTML = '<span class="smtp-result-error">Email and password are required.</span>';
+        return;
+    }
+
+    btn.classList.add('loading');
+    btn.disabled = true;
+    resultDiv.innerHTML = '<span class="smtp-result-pending">Testing connection...</span>';
+
+    try {
+        const res = await fetch('/api/smtp/configure', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ server, port, email, password }),
+        });
+        const data = await res.json();
+
+        if (data.success) {
+            resultDiv.innerHTML = `<span class="smtp-result-success">✅ ${data.message} — saved to .env</span>`;
+            state.smtpConfigured = true;
+            checkSmtpStatus();
+        } else {
+            resultDiv.innerHTML = `<span class="smtp-result-error">❌ ${data.message}</span>`;
+        }
+    } catch (err) {
+        resultDiv.innerHTML = '<span class="smtp-result-error">❌ Network error — is the server running?</span>';
+    } finally {
+        btn.classList.remove('loading');
+        btn.disabled = false;
+    }
+}
+
+async function sendEncryptedEmail() {
+    const btn = document.getElementById('btn-send-email');
+    const resultDiv = document.getElementById('send-result');
+
+    const recipient = document.getElementById('send-recipient').value.trim();
+    const subject = document.getElementById('send-subject').value.trim() || 'Encrypted Message';
+    const message = document.getElementById('send-message').value;
+    const key = document.getElementById('send-key').value;
+
+    // Validate
+    if (!recipient || !recipient.includes('@')) {
+        resultDiv.innerHTML = `<div class="result-placeholder"><div class="placeholder-icon">⚠️</div><p>Please enter a valid recipient email address</p></div>`;
+        return;
+    }
+    if (!message) {
+        resultDiv.innerHTML = `<div class="result-placeholder"><div class="placeholder-icon">⚠️</div><p>Please enter a message to encrypt and send</p></div>`;
+        return;
+    }
+    if (!key) {
+        resultDiv.innerHTML = `<div class="result-placeholder"><div class="placeholder-icon">🔑</div><p>Run the BB84 simulation first to generate an encryption key</p></div>`;
+        return;
+    }
+
+    btn.classList.add('loading');
+    btn.disabled = true;
+
+    // Show sending animation
+    resultDiv.innerHTML = `
+        <div class="send-progress">
+            <div class="send-progress-icon">📡</div>
+            <div class="send-progress-text">Encrypting & sending...</div>
+            <div class="send-progress-bar"><div class="send-progress-fill"></div></div>
+        </div>
+    `;
+
+    try {
+        const res = await fetch('/api/smtp/send', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ recipient, subject, message, key }),
+        });
+        const data = await res.json();
+
+        if (data.success) {
+            const d = data.details;
+            resultDiv.innerHTML = `
+                <div class="send-success">
+                    <div class="send-success-icon">✅</div>
+                    <div class="send-success-title">Email Sent Successfully!</div>
+                    <div class="result-data">
+                        <div class="result-field">
+                            <div class="result-field-label">From</div>
+                            <div class="result-field-value">${d.from}</div>
+                        </div>
+                        <div class="result-field">
+                            <div class="result-field-label">To</div>
+                            <div class="result-field-value">${escapeHtml(d.to)}</div>
+                        </div>
+                        <div class="result-field">
+                            <div class="result-field-label">Subject</div>
+                            <div class="result-field-value">${escapeHtml(d.subject)}</div>
+                        </div>
+                        <div class="result-field">
+                            <div class="result-field-label">Algorithm</div>
+                            <div class="result-field-value">${d.algorithm}</div>
+                        </div>
+                        <div class="result-field">
+                            <div class="result-field-label">Timestamp</div>
+                            <div class="result-field-value">${d.timestamp}</div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        } else {
+            resultDiv.innerHTML = `
+                <div class="send-error">
+                    <div class="send-error-icon">❌</div>
+                    <div class="send-error-title">Send Failed</div>
+                    <div class="result-field"><div class="result-field-value error">${data.error}</div></div>
+                </div>
+            `;
+        }
+    } catch (err) {
+        resultDiv.innerHTML = `
+            <div class="send-error">
+                <div class="send-error-icon">❌</div>
+                <div class="send-error-title">Network Error</div>
+                <div class="result-field"><div class="result-field-value error">Could not reach the server. Is it running?</div></div>
+            </div>
+        `;
+    } finally {
+        btn.classList.remove('loading');
+        btn.disabled = false;
+    }
 }

@@ -25,6 +25,7 @@
             <a href="#hero" class="nav-link active" data-section="hero">Home</a>
             <a href="#simulation" class="nav-link" data-section="simulation">BB84 Protocol</a>
             <a href="#encryption" class="nav-link" data-section="encryption">Encrypt</a>
+            <a href="#send-email" class="nav-link" data-section="send-email">Send Email</a>
             <a href="#eavesdrop" class="nav-link" data-section="eavesdrop">Detect Eve</a>
         </div>
     </nav>
@@ -264,11 +265,116 @@
         </div>
     </section>
 
+    <!-- Send Encrypted Email Section -->
+    <section id="send-email" class="section">
+        <div class="section-header">
+            <h2 class="section-title">
+                <span class="section-number">04</span>
+                Send Encrypted Email
+            </h2>
+            <p class="section-desc">
+                Send your quantum-encrypted message as a real email via SMTP.
+                The encrypted payload is delivered in a beautifully formatted email.
+            </p>
+        </div>
+
+        <!-- SMTP Status -->
+        <div class="smtp-status-bar glass-card" id="smtp-status-bar">
+            <div class="smtp-status-info">
+                <span class="smtp-status-dot" id="smtp-status-dot"></span>
+                <span class="smtp-status-text" id="smtp-status-text">Checking SMTP status...</span>
+            </div>
+            <button class="btn btn-sm btn-configure" id="btn-toggle-smtp-config">
+                ⚙️ Configure SMTP
+            </button>
+        </div>
+
+        <!-- SMTP Configuration Panel (collapsible) -->
+        <div class="smtp-config-panel glass-card" id="smtp-config-panel" style="display:none;">
+            <div class="panel-header">
+                <h3><span class="panel-icon">⚙️</span> SMTP Configuration</h3>
+                <span class="smtp-config-note">Credentials are saved to .env on successful test</span>
+            </div>
+            <div class="smtp-config-grid">
+                <div class="form-group">
+                    <label for="smtp-server" class="form-label">SMTP Server</label>
+                    <input type="text" id="smtp-server" class="form-input mono" value="smtp.gmail.com" autocomplete="off">
+                </div>
+                <div class="form-group">
+                    <label for="smtp-port" class="form-label">Port</label>
+                    <input type="number" id="smtp-port" class="form-input mono" value="587" autocomplete="off">
+                </div>
+                <div class="form-group">
+                    <label for="smtp-email" class="form-label">Email Address</label>
+                    <input type="email" id="smtp-email" class="form-input" placeholder="your-email@gmail.com" autocomplete="off">
+                </div>
+                <div class="form-group">
+                    <label for="smtp-password" class="form-label">App Password</label>
+                    <input type="password" id="smtp-password" class="form-input" placeholder="Gmail App Password" autocomplete="off">
+                </div>
+            </div>
+            <div class="smtp-config-actions">
+                <button class="btn btn-primary" id="btn-smtp-save">
+                    <span class="btn-icon">🔗</span>
+                    Test & Save
+                    <span class="btn-loader" id="smtp-save-loader"></span>
+                </button>
+                <div class="smtp-config-result" id="smtp-config-result"></div>
+            </div>
+        </div>
+
+        <!-- Email Compose -->
+        <div class="send-grid">
+            <div class="send-compose glass-card">
+                <div class="panel-header">
+                    <h3><span class="panel-icon">✉️</span> Compose Encrypted Email</h3>
+                </div>
+                <div class="form-group">
+                    <label for="send-recipient" class="form-label">To</label>
+                    <input type="email" id="send-recipient" class="form-input" placeholder="recipient@example.com" autocomplete="off">
+                </div>
+                <div class="form-group">
+                    <label for="send-subject" class="form-label">Subject</label>
+                    <input type="text" id="send-subject" class="form-input" placeholder="Classified: Project Quantum" autocomplete="off">
+                </div>
+                <div class="form-group">
+                    <label for="send-message" class="form-label">Message Body</label>
+                    <textarea id="send-message" class="form-textarea" rows="5" placeholder="Enter your secret message to encrypt and send..."></textarea>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Encryption Key</label>
+                    <div class="key-input-wrapper">
+                        <input type="text" id="send-key" class="form-input mono" placeholder="Run BB84 simulation first" readonly>
+                        <span class="key-source-badge" id="send-key-badge">No Key</span>
+                    </div>
+                </div>
+                <button class="btn btn-primary btn-full btn-send" id="btn-send-email">
+                    <span class="btn-icon">📨</span>
+                    Encrypt & Send via SMTP
+                    <span class="btn-loader" id="send-loader"></span>
+                </button>
+            </div>
+
+            <!-- Delivery Result -->
+            <div class="send-result glass-card">
+                <div class="panel-header">
+                    <h3><span class="panel-icon">📬</span> Delivery Status</h3>
+                </div>
+                <div id="send-result" class="send-result-content">
+                    <div class="result-placeholder">
+                        <div class="placeholder-icon">📬</div>
+                        <p>Compose and send an encrypted email to see delivery status</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
     <!-- Eavesdropping Detection Section -->
     <section id="eavesdrop" class="section">
         <div class="section-header">
             <h2 class="section-title">
-                <span class="section-number">03</span>
+                <span class="section-number">05</span>
                 Eavesdropping Detection
             </h2>
             <p class="section-desc">

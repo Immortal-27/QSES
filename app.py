@@ -9,6 +9,7 @@ Real quantum key distribution requires dedicated quantum hardware and optical ch
 """
 
 import os
+import uuid
 from dotenv import load_dotenv
 
 # Load environment variables from .env BEFORE anything else
@@ -98,9 +99,10 @@ def decrypt_page():
     """
     Decrypt landing page — linked from emails.
 
-    Accepts query params ?nonce=...&ciphertext=... and serves the
-    main page. JavaScript reads the URL params and pre-fills the
-    decrypt form so the recipient only needs to enter the key.
+    Accepts query params ?nonce=...&ciphertext=...&mid=... and serves the
+    main page. JavaScript reads the URL params, pre-fills the decrypt
+    form, and auto-retrieves the encryption key from the session if the
+    user is the same one who sent the email.
     """
     return render_template("index.html")
 
@@ -347,16 +349,24 @@ def smtp_send():
         # Step 1: Encrypt the message
         encrypted_payload = encrypt_message(message, key_hex)
 
-        # Step 2: Determine base URL for the decrypt link in the email
+        # Step 2: Generate a unique message ID and store the key in the session
+        message_id = uuid.uuid4().hex[:12]
+        if "decrypt_keys" not in session:
+            session["decrypt_keys"] = {}
+        session["decrypt_keys"][message_id] = key_hex
+        session.modified = True
+
+        # Step 3: Determine base URL for the decrypt link in the email
         base_url = request.url_root.rstrip("/")
 
-        # Step 3: Send via SMTP
+        # Step 4: Send via SMTP (pass message_id so it's included in the decrypt URL)
         send_result = smtp.send_encrypted_email(
             recipient=recipient,
             subject=subject,
             encrypted_payload=encrypted_payload,
             original_length=len(message),
             base_url=base_url,
+            message_id=message_id,
         )
 
         if send_result["success"]:
@@ -374,6 +384,27 @@ def smtp_send():
 
     except Exception as e:
         return jsonify({"success": False, "error": f"Failed to encrypt and send: {str(e)}"}), 500
+
+
+@app.route("/api/decrypt-key/<message_id>", methods=["GET"])
+def get_decrypt_key(message_id):
+    """
+    Retrieve the stored encryption key for a specific message.
+
+    The key is only available if the current session is the same one
+    that sent the original email (same browser/user who encrypted).
+    This allows the decrypt page to auto-fill the key field.
+    """
+    decrypt_keys = session.get("decrypt_keys", {})
+    key = decrypt_keys.get(message_id)
+
+    if key:
+        return jsonify({"success": True, "key": key})
+    else:
+        return jsonify({
+            "success": False,
+            "error": "No key found for this message. You may need to enter the key manually."
+        }), 404
 
 
 if __name__ == "__main__":

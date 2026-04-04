@@ -182,6 +182,7 @@ class SMTPService:
         encrypted_payload: dict,
         original_length: int,
         base_url: str = "http://127.0.0.1:5000",
+        message_id: str = "",
     ) -> dict:
         """
         Send an encrypted email payload via SMTP.
@@ -192,6 +193,7 @@ class SMTPService:
             encrypted_payload: dict with 'ciphertext', 'nonce', 'algorithm', etc.
             original_length: Length of the original plaintext message
             base_url: The QSES app's base URL for the decrypt link
+            message_id: Unique ID for this message, used to retrieve the key from session
 
         Returns:
             dict with 'success' (bool), 'message' (str), and optional metadata
@@ -218,12 +220,15 @@ class SMTPService:
 
             timestamp = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S UTC")
 
-            # Build the decrypt URL with nonce + ciphertext as query params
+            # Build the decrypt URL with nonce + ciphertext + message ID as query params
             from urllib.parse import urlencode, quote
-            decrypt_params = urlencode({
+            params = {
                 "nonce": encrypted_payload.get("nonce", ""),
                 "ciphertext": encrypted_payload.get("ciphertext", ""),
-            }, quote_via=quote)
+            }
+            if message_id:
+                params["mid"] = message_id
+            decrypt_params = urlencode(params, quote_via=quote)
             decrypt_url = f"{base_url.rstrip('/')}/decrypt?{decrypt_params}"
 
             # Plain text version (for clients that don't render HTML)

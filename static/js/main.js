@@ -783,10 +783,11 @@ async function sendEncryptedEmail() {
 // Decrypt from Email Link
 // ============================================================
 
-function checkDecryptParams() {
+async function checkDecryptParams() {
     const params = new URLSearchParams(window.location.search);
     const nonce = params.get('nonce');
     const ciphertext = params.get('ciphertext');
+    const messageId = params.get('mid');
 
     if (!nonce || !ciphertext) return;
 
@@ -797,6 +798,34 @@ function checkDecryptParams() {
 
     if (nonceInput) nonceInput.value = nonce;
     if (ciphertextInput) ciphertextInput.value = ciphertext;
+
+    // If a message ID is present, try to auto-retrieve the key from the session
+    let keyAutoFilled = false;
+    if (messageId && keyInput) {
+        try {
+            const res = await fetch(`/api/decrypt-key/${messageId}`);
+            const data = await res.json();
+
+            if (data.success && data.key) {
+                keyInput.value = data.key;
+                state.currentKey = data.key;
+                keyAutoFilled = true;
+
+                // Show a success indicator on the key field
+                keyInput.style.borderColor = 'var(--green)';
+                keyInput.style.boxShadow = '0 0 12px rgba(105, 240, 174, 0.25)';
+
+                // Update the decrypt key badge if it exists
+                const badge = document.getElementById('key-source-badge');
+                if (badge) {
+                    badge.textContent = 'BB84 Key';
+                    badge.className = 'key-source-badge has-key';
+                }
+            }
+        } catch (err) {
+            console.warn('Could not auto-retrieve decrypt key:', err);
+        }
+    }
 
     // Scroll to the encryption section after a short delay
     setTimeout(() => {
@@ -816,8 +845,23 @@ function checkDecryptParams() {
             }, 4000);
         }
 
-        // Focus the key input so the user can paste their key
-        if (keyInput) {
+        if (keyAutoFilled) {
+            // Key was auto-filled — show a confirmation message
+            const resultDiv = document.getElementById('decrypt-result');
+            if (resultDiv) {
+                resultDiv.style.display = 'block';
+                resultDiv.innerHTML = `
+                    <div class="result-field" style="margin-top: 16px;">
+                        <div class="result-field-label" style="color: var(--green);">🔑 Key Auto-Retrieved</div>
+                        <div class="result-field-value" style="color: var(--text-secondary);">
+                            The encryption key was automatically loaded from your session.
+                            Click <strong>Decrypt</strong> to reveal the message.
+                        </div>
+                    </div>
+                `;
+            }
+        } else if (keyInput) {
+            // Key not available — prompt user to paste it manually
             keyInput.focus();
             keyInput.placeholder = 'Paste your shared quantum key here to decrypt';
         }

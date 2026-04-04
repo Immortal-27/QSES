@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Quantum-Simulated Email Security — A demonstration of BB84 quantum key distribution protocol with AES-256-GCM encryption for secure email communication.">
+    <title>QSES — Quantum-Simulated Email Security</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+    <!-- Quantum Particle Canvas Background -->
+    <canvas id="quantum-canvas"></canvas>
+
+    <!-- Glowing orbs background -->
+    <div class="bg-orb bg-orb-1"></div>
+    <div class="bg-orb bg-orb-2"></div>
+    <div class="bg-orb bg-orb-3"></div>
+
+    <!-- Navigation -->
+    <nav class="navbar" id="navbar">
+        <div class="nav-brand">
+            <span class="nav-icon">⚛️</span>
+            <span class="nav-title">QSES</span>
+            <span class="nav-badge">SIMULATION</span>
+        </div>
+        <div class="nav-links">
+            <a href="#hero" class="nav-link active" data-section="hero">Home</a>
+            <a href="#simulation" class="nav-link" data-section="simulation">BB84 Protocol</a>
+            <a href="#encryption" class="nav-link" data-section="encryption">Encrypt</a>
+            <a href="#eavesdrop" class="nav-link" data-section="eavesdrop">Detect Eve</a>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section id="hero" class="hero">
+        <div class="hero-content">
+            <div class="hero-badge">
+                <span class="pulse-dot"></span>
+                Classical Simulation of Quantum Security
+            </div>
+            <h1 class="hero-title">
+                <span class="gradient-text">Quantum-Simulated</span><br>
+                Email Security
+            </h1>
+            <p class="hero-subtitle">
+                Experience the BB84 quantum key distribution protocol — simulated classically — 
+                to understand how quantum mechanics could revolutionize email encryption.
+            </p>
+            <div class="hero-actions">
+                <a href="#simulation" class="btn btn-primary" id="btn-get-started">
+                    <span class="btn-icon">🔬</span>
+                    Start BB84 Simulation
+                </a>
+                <a href="#encryption" class="btn btn-secondary" id="btn-try-encrypt">
+                    <span class="btn-icon">🔐</span>
+                    Encrypt a Message
+                </a>
+            </div>
+            <div class="hero-disclaimer">
+                <span class="disclaimer-icon">ℹ️</span>
+                <strong>Disclaimer:</strong> This is a <em>classical simulation</em> of quantum key exchange. 
+                Real QKD requires dedicated quantum hardware and optical fiber channels.
+            </div>
+        </div>
+        <div class="hero-visual">
+            <div class="quantum-circuit">
+                <div class="circuit-line">
+                    <span class="circuit-label">Alice</span>
+                    <div class="circuit-wire"></div>
+                    <div class="qubit-node" data-state="|ψ⟩">|ψ⟩</div>
+                    <div class="circuit-wire quantum-channel"></div>
+                    <div class="qubit-node" data-state="|φ⟩">|φ⟩</div>
+                    <div class="circuit-wire"></div>
+                    <span class="circuit-label">Bob</span>
+                </div>
+                <div class="circuit-annotation">Quantum Channel (Simulated)</div>
+                <div class="floating-states">
+                    <span class="float-state s1">|0⟩</span>
+                    <span class="float-state s2">|1⟩</span>
+                    <span class="float-state s3">|+⟩</span>
+                    <span class="float-state s4">|-⟩</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- BB84 Simulation Section -->
+    <section id="simulation" class="section">
+        <div class="section-header">
+            <h2 class="section-title">
+                <span class="section-number">01</span>
+                BB84 Protocol Simulation
+            </h2>
+            <p class="section-desc">
+                Watch the quantum key distribution protocol unfold step by step. 
+                Alice and Bob establish a shared secret key over a potentially insecure quantum channel.
+            </p>
+        </div>
+
+        <div class="sim-controls glass-card">
+            <div class="control-group">
+                <label for="n-qubits" class="control-label">Number of Qubits</label>
+                <div class="range-wrapper">
+                    <input type="range" id="n-qubits" min="32" max="512" value="128" step="32">
+                    <span class="range-value" id="n-qubits-value">128</span>
+                </div>
+            </div>
+            <button class="btn btn-primary btn-simulate" id="btn-simulate">
+                <span class="btn-icon">⚛️</span>
+                Run BB84 Exchange
+                <span class="btn-loader" id="sim-loader"></span>
+            </button>
+        </div>
+
+        <!-- Protocol Steps -->
+        <div class="protocol-steps" id="protocol-steps">
+            <div class="step-placeholder">
+                <div class="placeholder-icon">⚛️</div>
+                <p>Click "Run BB84 Exchange" to simulate the quantum key distribution protocol</p>
+            </div>
+        </div>
+
+        <!-- Qubit Table -->
+        <div class="qubit-table-wrapper glass-card" id="qubit-table-wrapper" style="display:none;">
+            <h3 class="table-title">
+                <span class="table-icon">📊</span>
+                Qubit-by-Qubit Comparison
+                <span class="table-badge">First 20 qubits shown</span>
+            </h3>
+            <div class="table-scroll">
+                <table class="qubit-table" id="qubit-table">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Alice's Bit</th>
+                            <th>Alice's Basis</th>
+                            <th>Qubit State</th>
+                            <th>Bob's Basis</th>
+                            <th>Bob's Bit</th>
+                            <th>Match?</th>
+                        </tr>
+                    </thead>
+                    <tbody id="qubit-table-body"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Stats -->
+        <div class="stats-grid" id="stats-grid" style="display:none;">
+            <div class="stat-card glass-card">
+                <div class="stat-icon">📡</div>
+                <div class="stat-value" id="stat-total">—</div>
+                <div class="stat-label">Qubits Transmitted</div>
+            </div>
+            <div class="stat-card glass-card">
+                <div class="stat-icon">🔗</div>
+                <div class="stat-value" id="stat-matching">—</div>
+                <div class="stat-label">Matching Bases</div>
+            </div>
+            <div class="stat-card glass-card">
+                <div class="stat-icon">🔑</div>
+                <div class="stat-value" id="stat-key-len">—</div>
+                <div class="stat-label">Key Length (bits)</div>
+            </div>
+            <div class="stat-card glass-card">
+                <div class="stat-icon" id="stat-error-icon">✅</div>
+                <div class="stat-value" id="stat-error">—</div>
+                <div class="stat-label">Error Rate (QBER)</div>
+            </div>
+        </div>
+
+        <!-- Key Display -->
+        <div class="key-display glass-card" id="key-display" style="display:none;">
+            <div class="key-header">
+                <h3>
+                    <span>🔑</span> Shared Secret Key
+                    <span class="key-status" id="key-status">SECURE</span>
+                </h3>
+                <button class="btn btn-sm btn-copy" id="btn-copy-key" title="Copy key">📋 Copy</button>
+            </div>
+            <code class="key-value" id="key-value"></code>
+            <p class="key-meta" id="key-meta"></p>
+        </div>
+    </section>
+
+    <!-- Encryption Section -->
+    <section id="encryption" class="section">
+        <div class="section-header">
+            <h2 class="section-title">
+                <span class="section-number">02</span>
+                Quantum-Keyed Email Encryption
+            </h2>
+            <p class="section-desc">
+                Use the quantum-derived key to encrypt and decrypt email messages with AES-256-GCM 
+                — authenticated encryption that guarantees both confidentiality and integrity.
+            </p>
+        </div>
+
+        <div class="encrypt-grid">
+            <!-- Encrypt Panel -->
+            <div class="encrypt-panel glass-card">
+                <div class="panel-header">
+                    <h3><span class="panel-icon">🔒</span> Encrypt Message</h3>
+                </div>
+                <div class="form-group">
+                    <label for="encrypt-recipient" class="form-label">To</label>
+                    <input type="email" id="encrypt-recipient" class="form-input" placeholder="bob@quantum-secure.io" autocomplete="off">
+                </div>
+                <div class="form-group">
+                    <label for="encrypt-subject" class="form-label">Subject</label>
+                    <input type="text" id="encrypt-subject" class="form-input" placeholder="Classified: Project Quantum" autocomplete="off">
+                </div>
+                <div class="form-group">
+                    <label for="encrypt-message" class="form-label">Message Body</label>
+                    <textarea id="encrypt-message" class="form-textarea" rows="5" placeholder="Enter your secret message here..."></textarea>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Encryption Key</label>
+                    <div class="key-input-wrapper">
+                        <input type="text" id="encrypt-key" class="form-input mono" placeholder="Run BB84 simulation first to generate a key" readonly>
+                        <span class="key-source-badge" id="key-source-badge">No Key</span>
+                    </div>
+                </div>
+                <button class="btn btn-primary btn-full" id="btn-encrypt">
+                    <span class="btn-icon">🔐</span>
+                    Encrypt with AES-256-GCM
+                </button>
+            </div>
+
+            <!-- Result Panel -->
+            <div class="encrypt-panel glass-card">
+                <div class="panel-header">
+                    <h3><span class="panel-icon">📨</span> Encrypted Output</h3>
+                </div>
+                <div id="encrypt-result" class="encrypt-result">
+                    <div class="result-placeholder">
+                        <div class="placeholder-icon">🔒</div>
+                        <p>Encrypted ciphertext will appear here</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Decrypt Panel -->
+            <div class="decrypt-panel glass-card">
+                <div class="panel-header">
+                    <h3><span class="panel-icon">🔓</span> Decrypt Message</h3>
+                </div>
+                <div class="form-group">
+                    <label for="decrypt-ciphertext" class="form-label">Ciphertext (Base64)</label>
+                    <textarea id="decrypt-ciphertext" class="form-textarea mono" rows="3" placeholder="Paste the encrypted ciphertext here..."></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="decrypt-nonce" class="form-label">Nonce (Base64)</label>
+                    <input type="text" id="decrypt-nonce" class="form-input mono" placeholder="Paste the nonce here...">
+                </div>
+                <div class="form-group">
+                    <label for="decrypt-key" class="form-label">Decryption Key (Hex)</label>
+                    <input type="text" id="decrypt-key" class="form-input mono" placeholder="Same key used for encryption">
+                </div>
+                <button class="btn btn-primary btn-full" id="btn-decrypt">
+                    <span class="btn-icon">🔓</span>
+                    Decrypt Message
+                </button>
+                <div id="decrypt-result" class="decrypt-result" style="display:none;"></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Eavesdropping Detection Section -->
+    <section id="eavesdrop" class="section">
+        <div class="section-header">
+            <h2 class="section-title">
+                <span class="section-number">03</span>
+                Eavesdropping Detection
+            </h2>
+            <p class="section-desc">
+                The killer feature of quantum key distribution: detecting eavesdroppers. 
+                Toggle Eve on/off to see how the error rate reveals her presence.
+            </p>
+        </div>
+
+        <div class="eve-demo glass-card">
+            <div class="eve-controls">
+                <div class="eve-toggle-wrapper">
+                    <span class="eve-label eve-label-safe">Secure Channel</span>
+                    <label class="toggle" for="eve-toggle">
+                        <input type="checkbox" id="eve-toggle">
+                        <span class="toggle-slider"></span>
+                    </label>
+                    <span class="eve-label eve-label-danger">Eve is Listening 🕵️</span>
+                </div>
+                <button class="btn btn-primary" id="btn-eve-simulate">
+                    <span class="btn-icon">🔬</span>
+                    Run Detection Test
+                </button>
+            </div>
+
+            <!-- Eve Animation -->
+            <div class="eve-diagram">
+                <div class="eve-node eve-alice">
+                    <div class="eve-node-icon">👩‍💻</div>
+                    <div class="eve-node-label">Alice</div>
+                </div>
+                <div class="eve-channel" id="eve-channel">
+                    <div class="eve-photon" id="eve-photon-1"></div>
+                    <div class="eve-photon" id="eve-photon-2"></div>
+                    <div class="eve-photon" id="eve-photon-3"></div>
+                    <div class="eve-interceptor" id="eve-interceptor">
+                        <div class="eve-spy-icon">🕵️</div>
+                        <div class="eve-spy-label">Eve</div>
+                    </div>
+                </div>
+                <div class="eve-node eve-bob">
+                    <div class="eve-node-icon">👨‍💻</div>
+                    <div class="eve-node-label">Bob</div>
+                </div>
+            </div>
+
+            <!-- Error Rate Gauge -->
+            <div class="gauge-section" id="gauge-section" style="display:none;">
+                <div class="gauge-container">
+                    <div class="gauge">
+                        <svg viewBox="0 0 200 120" class="gauge-svg">
+                            <path d="M 20 100 A 80 80 0 0 1 180 100" class="gauge-bg" />
+                            <path d="M 20 100 A 80 80 0 0 1 180 100" class="gauge-fill" id="gauge-fill" />
+                        </svg>
+                        <div class="gauge-value" id="gauge-value">0%</div>
+                        <div class="gauge-label">Quantum Bit Error Rate</div>
+                    </div>
+                    <div class="gauge-threshold">
+                        <div class="threshold-marker" style="left: 34%;">
+                            <span class="threshold-line"></span>
+                            <span class="threshold-label">11% threshold</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="gauge-verdict" id="gauge-verdict"></div>
+            </div>
+
+            <!-- Comparison Cards -->
+            <div class="comparison-grid" id="comparison-grid" style="display:none;">
+                <div class="comparison-card glass-card comparison-secure" id="comp-secure">
+                    <h4>✅ Without Eavesdropper</h4>
+                    <div class="comp-error-rate" id="comp-secure-rate">—</div>
+                    <p>Error rate ≈ 0% (only noise)</p>
+                    <div class="comp-bar">
+                        <div class="comp-bar-fill comp-bar-green" id="comp-bar-secure"></div>
+                    </div>
+                </div>
+                <div class="comparison-card glass-card comparison-danger" id="comp-danger">
+                    <h4>🚨 With Eavesdropper</h4>
+                    <div class="comp-error-rate" id="comp-danger-rate">—</div>
+                    <p>Error rate ≈ 25% (Eve detected!)</p>
+                    <div class="comp-bar">
+                        <div class="comp-bar-fill comp-bar-red" id="comp-bar-danger"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-brand">
+                <span>⚛️</span> Quantum-Simulated Email Security
+            </div>
+            <div class="footer-disclaimer">
+                Built for educational purposes. This is a <strong>classical simulation</strong> — 
+                not real quantum key distribution. Real QKD requires quantum hardware.
+            </div>
+            <div class="footer-tech">
+                BB84 Protocol • AES-256-GCM • HKDF-SHA256 • Python + Flask
+            </div>
+        </div>
+    </footer>
+
+    <script src="/static/js/main.js"></script>
+</body>
+</html>

@@ -8,14 +8,23 @@ DISCLAIMER: This is a SIMULATION of quantum key exchange using classical computi
 Real quantum key distribution requires dedicated quantum hardware and optical channels.
 """
 
+import os
+from dotenv import load_dotenv
+
+# Load environment variables from .env BEFORE anything else
+load_dotenv()
+
 from flask import Flask, render_template, request, jsonify, send_from_directory
 from quantum_sim import full_bb84_exchange, QUBIT_STATES
 from crypto_utils import encrypt_message, decrypt_message
+from smtp_service import SMTPService
 from cryptography.exceptions import InvalidTag
-from dataclasses import asdict
-import os
 
 app = Flask(__name__)
+app.secret_key = os.getenv("FLASK_SECRET_KEY", "qses-dev-fallback-key")
+
+# Initialize SMTP service (reads credentials from env vars loaded above)
+smtp = SMTPService()
 
 
 @app.route("/chain.glb")
@@ -159,6 +168,122 @@ def decrypt():
         return jsonify({"success": False, "error": str(e)}), 500
 
 
+# ============================================================
+# SMTP Routes
+# ============================================================
+
+@app.route("/api/smtp/status", methods=["GET"])
+def smtp_status():
+    """
+    Check whether SMTP is configured and ready.
+
+    Returns JSON with configuration status (password is never exposed).
+    """
+    status = smtp.get_status()
+    return jsonify({"success": True, **status})
+
+
+@app.route("/api/smtp/configure", methods=["POST"])
+def smtp_configure():
+    """
+    Configure SMTP credentials at runtime (in-memory override).
+
+    Request JSON:
+        server (str): SMTP server hostname
+        port (int): SMTP server port
+        email (str): Sender email address
+        password (str): Sender app password
+
+    Also runs a connection test to validate the credentials.
+    """
+    data = request.get_json(force=True)
+    server = data.get("server", "smtp.gmail.com")
+    port = int(data.get("port", 587))
+    email = data.get("email", "")
+    password = data.get("password", "")
+
+    if not email or not password:
+        return jsonify({"success": False, "error": "Email and password are required."}), 400
+
+    # Apply credentials in memory first (don't save to .env yet)
+    smtp.server = server
+    smtp.port = port
+    smtp.email = email
+    smtp.password = password
+
+    # Test the connection
+    test_result = smtp.test_connection()
+
+    if test_result["success"]:
+        # Connection works — now persist to .env
+        smtp.save_to_env()
+
+    return jsonify({
+        "success": test_result["success"],
+        "message": test_result["message"],
+        "status": smtp.get_status(),
+    })
+
+
+@app.route("/api/smtp/send", methods=["POST"])
+def smtp_send():
+    """
+    Encrypt a message and send it via SMTP in one step.
+
+    Request JSON:
+        recipient (str): Destination email address
+        subject (str): Email subject line
+        message (str): Plaintext message to encrypt and send
+        key (str): Hex key from BB84 simulation
+
+    The message is encrypted with AES-256-GCM using the provided key,
+    then the encrypted payload is sent as a formatted email via SMTP.
+    """
+    data = request.get_json(force=True)
+    recipient = data.get("recipient", "")
+    subject = data.get("subject", "Encrypted Message")
+    message = data.get("message", "")
+    key_hex = data.get("key", "")
+
+    # Validate inputs
+    if not recipient or "@" not in recipient:
+        return jsonify({"success": False, "error": "Valid recipient email is required."}), 400
+    if not message:
+        return jsonify({"success": False, "error": "Message body is required."}), 400
+    if not key_hex:
+        return jsonify({"success": False, "error": "Encryption key is required. Run BB84 simulation first."}), 400
+    if not smtp.is_configured():
+        return jsonify({"success": False, "error": "SMTP is not configured. Set your credentials first."}), 400
+
+    try:
+        # Step 1: Encrypt the message
+        encrypted_payload = encrypt_message(message, key_hex)
+
+        # Step 2: Send via SMTP
+        send_result = smtp.send_encrypted_email(
+            recipient=recipient,
+            subject=subject,
+            encrypted_payload=encrypted_payload,
+            original_length=len(message),
+        )
+
+        if send_result["success"]:
+            return jsonify({
+                "success": True,
+                "message": send_result["message"],
+                "details": send_result.get("details", {}),
+                "encrypted": encrypted_payload,
+            })
+        else:
+            return jsonify({
+                "success": False,
+                "error": send_result["message"],
+            }), 500
+
+    except Exception as e:
+        return jsonify({"success": False, "error": f"Failed to encrypt and send: {str(e)}"}), 500
+
+
 if __name__ == "__main__":
     print("\n" + "=" * 60)
     print("  Quantum-Simulated Email Security (QSES)")
@@ -166,5 +291,13 @@ if __name__ == "__main__":
     print("=" * 60)
     print("  DISCLAIMER: Classical simulation — not real QKD!")
     print("=" * 60)
+
+    # Show SMTP status
+    if smtp.is_configured():
+        status = smtp.get_status()
+        print(f"\n  📧 SMTP: Configured ({status['masked_email']} via {status['server']})")
+    else:
+        print("\n  📧 SMTP: Not configured — edit .env to add credentials")
+
     print(f"\n  🌐 Open http://127.0.0.1:5000 in your browser\n")
     app.run(debug=True, host="127.0.0.1", port=5000)

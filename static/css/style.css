@@ -1182,6 +1182,209 @@ input[type="range"]::-webkit-slider-thumb:hover {
     opacity: 1;
 }
 
+/* ---------- SMTP Status Bar ---------- */
+.smtp-status-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 24px;
+    margin-bottom: 20px;
+}
+.smtp-status-info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+.smtp-status-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--text-dim);
+    transition: all 0.3s ease;
+    flex-shrink: 0;
+}
+.smtp-status-dot.configured {
+    background: var(--green);
+    box-shadow: 0 0 10px var(--green-glow);
+    animation: pulse 2s ease-in-out infinite;
+}
+.smtp-status-dot.not-configured {
+    background: var(--yellow);
+    box-shadow: 0 0 8px rgba(255, 215, 64, 0.3);
+}
+.smtp-status-text {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-secondary);
+}
+
+.btn-configure {
+    background: rgba(179, 136, 255, 0.1);
+    color: var(--purple);
+    border: 1px solid rgba(179, 136, 255, 0.2);
+    font-size: 12px;
+    padding: 6px 14px;
+    border-radius: var(--radius-sm);
+}
+.btn-configure:hover {
+    background: rgba(179, 136, 255, 0.2);
+    border-color: rgba(179, 136, 255, 0.35);
+}
+
+/* ---------- SMTP Config Panel ---------- */
+.smtp-config-panel {
+    margin-bottom: 24px;
+}
+.smtp-config-panel .panel-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+.smtp-config-note {
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--text-dim);
+    font-style: italic;
+}
+.smtp-config-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 16px;
+    margin-bottom: 20px;
+}
+.smtp-config-actions {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;
+}
+.smtp-config-result {
+    font-size: 13px;
+    font-weight: 500;
+}
+.smtp-result-success {
+    color: var(--green);
+}
+.smtp-result-error {
+    color: var(--red);
+}
+.smtp-result-pending {
+    color: var(--yellow);
+    animation: blink 1s ease-in-out infinite;
+}
+
+/* ---------- Send Email Grid ---------- */
+.send-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+}
+
+.btn-send {
+    background: linear-gradient(135deg, var(--green), #00c853);
+    color: var(--bg-primary);
+    box-shadow: 0 4px 20px rgba(105, 240, 174, 0.25);
+}
+.btn-send:hover {
+    box-shadow: 0 6px 30px rgba(105, 240, 174, 0.4);
+    transform: translateY(-2px);
+}
+.btn-send:active {
+    transform: translateY(0);
+}
+.btn-send.loading {
+    background: linear-gradient(135deg, var(--green), #00c853);
+    opacity: 0.8;
+}
+
+.send-result-content {
+    min-height: 200px;
+}
+
+/* Send Progress Animation */
+.send-progress {
+    text-align: center;
+    padding: 40px 20px;
+}
+.send-progress-icon {
+    font-size: 40px;
+    margin-bottom: 12px;
+    animation: eveBob 1.5s ease-in-out infinite;
+}
+.send-progress-text {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--cyan);
+    margin-bottom: 20px;
+}
+.send-progress-bar {
+    width: 80%;
+    max-width: 300px;
+    height: 4px;
+    background: var(--border);
+    border-radius: 2px;
+    margin: 0 auto;
+    overflow: hidden;
+}
+.send-progress-fill {
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, var(--cyan), var(--purple), var(--cyan));
+    background-size: 200% 100%;
+    border-radius: 2px;
+    animation: progressSlide 1.5s ease-in-out infinite;
+}
+@keyframes progressSlide {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+}
+
+/* Send Success */
+.send-success {
+    text-align: center;
+    padding: 24px 16px;
+}
+.send-success-icon {
+    font-size: 48px;
+    margin-bottom: 12px;
+    animation: successPop 0.5s ease forwards;
+}
+@keyframes successPop {
+    0% { transform: scale(0); opacity: 0; }
+    50% { transform: scale(1.2); }
+    100% { transform: scale(1); opacity: 1; }
+}
+.send-success-title {
+    font-size: 20px;
+    font-weight: 800;
+    color: var(--green);
+    margin-bottom: 20px;
+}
+.send-success .result-data {
+    text-align: left;
+}
+
+/* Send Error */
+.send-error {
+    text-align: center;
+    padding: 24px 16px;
+}
+.send-error-icon {
+    font-size: 48px;
+    margin-bottom: 12px;
+}
+.send-error-title {
+    font-size: 20px;
+    font-weight: 800;
+    color: var(--red);
+    margin-bottom: 16px;
+}
+.send-error .result-field {
+    text-align: left;
+}
+
 /* ---------- Responsive ---------- */
 @media (max-width: 900px) {
     .hero {
@@ -1193,10 +1396,13 @@ input[type="range"]::-webkit-slider-thumb:hover {
     .hero-actions { justify-content: center; }
     .hero-title { font-size: 36px; }
     .encrypt-grid { grid-template-columns: 1fr; }
+    .send-grid { grid-template-columns: 1fr; }
+    .smtp-config-grid { grid-template-columns: 1fr; }
     .stats-grid { grid-template-columns: repeat(2, 1fr); }
     .comparison-grid { grid-template-columns: 1fr; }
     .sim-controls { flex-direction: column; align-items: stretch; }
     .nav-links { display: none; }
+    .smtp-status-bar { flex-direction: column; gap: 12px; text-align: center; }
 }
 @media (max-width: 600px) {
     .hero-title { font-size: 28px; }

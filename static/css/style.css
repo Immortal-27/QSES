@@ -3,6 +3,20 @@
    Premium Dark Theme with Quantum-Inspired Aesthetics
    ============================================================ */
 
+/* ---------- Fonts ---------- */
+@font-face {
+    font-family: 'Varent Grotesk';
+    src: url('../fonts/VarentGrotesk-Bold.otf') format('opentype');
+    font-weight: bold;
+    font-style: normal;
+}
+@font-face {
+    font-family: 'Varent Grotesk Classy';
+    src: url('../fonts/VarentGrotesk-ExtLtIta.otf') format('opentype');
+    font-weight: 200;
+    font-style: italic;
+}
+
 /* ---------- Design Tokens ---------- */
 :root {
     /* Quantum color palette */
@@ -48,6 +62,7 @@
 
     --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
     --font-mono: 'JetBrains Mono', 'Fira Code', 'Cascadia Code', monospace;
+    --font-heading: 'Varent Grotesk', var(--font-sans);
 
     --nav-height: 64px;
     --max-width: 1200px;
@@ -78,6 +93,10 @@ body {
     line-height: 1.6;
     overflow-x: hidden;
     -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3, .hero-title, .section-title, .nav-title, .table-title, .panel-header h3 {
+    font-family: var(--font-heading);
 }
 
 /* ---------- 3D Chain Background (iframe) ---------- */
@@ -142,20 +161,19 @@ body {
     font-size: 20px;
     font-weight: 800;
     letter-spacing: 1px;
-    background: linear-gradient(135deg, var(--cyan), var(--purple));
-    -webkit-background-clip: text;
-    background-clip: text;
-    -webkit-text-fill-color: transparent;
+    color: var(--text-primary);
 }
 .nav-badge {
-    font-size: 9px;
-    font-weight: 700;
+    font-size: 10px;
+    font-family: var(--font-sans);
+    font-weight: 800;
     letter-spacing: 1.5px;
-    padding: 3px 8px;
-    border-radius: 4px;
-    background: var(--cyan-dim);
+    text-transform: uppercase;
+    padding: 4px 10px;
+    border-radius: var(--radius-sm);
+    background: rgba(0, 229, 255, 0.15);
     color: var(--cyan);
-    border: 1px solid rgba(0, 229, 255, 0.2);
+    border: 1px solid rgba(0, 229, 255, 0.4);
 }
 .nav-links { display: flex; gap: 4px; }
 .nav-link {
@@ -440,22 +458,23 @@ body {
     position: relative;
     z-index: 1;
 }
-.hero-content { flex: 1; max-width: 580px; }
+.hero-content { flex: 1; max-width: 680px; }
 .hero-visual { flex: 0 0 420px; }
 
 .hero-badge {
     display: inline-flex;
     align-items: center;
     gap: 10px;
-    font-size: 12px;
-    font-weight: 600;
-    letter-spacing: 1.2px;
+    font-size: 13px;
+    font-family: var(--font-sans);
+    font-weight: 700;
+    letter-spacing: 1.5px;
     text-transform: uppercase;
     color: var(--cyan);
-    padding: 8px 18px;
+    padding: 10px 22px;
     border-radius: 100px;
-    border: 1px solid var(--cyan-dim);
-    background: rgba(0, 229, 255, 0.05);
+    border: 1px solid rgba(0, 229, 255, 0.4);
+    background: rgba(0, 229, 255, 0.1);
     margin-bottom: 24px;
 }
 .pulse-dot {
@@ -501,13 +520,19 @@ body {
     margin-bottom: 32px;
 }
 .hero-disclaimer {
-    font-size: 12px;
-    color: var(--text-dim);
-    padding: 14px 18px;
+    font-size: 11px;
+    font-family: var(--font-sans);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1.2px;
+    color: var(--text-primary);
+    padding: 14px 22px;
     border-radius: var(--radius-md);
-    border: 1px solid rgba(255, 215, 64, 0.12);
-    background: rgba(255, 215, 64, 0.03);
+    border: 1px solid rgba(255, 215, 64, 0.4);
+    background: rgba(255, 215, 64, 0.1);
     line-height: 1.6;
+    width: max-content;
+    white-space: nowrap;
 }
 .disclaimer-icon { margin-right: 6px; }
 
@@ -1348,15 +1373,22 @@ input[type="range"]::-webkit-slider-thumb:hover {
     margin-bottom: 12px;
 }
 .footer-disclaimer {
-    font-size: 13px;
-    color: var(--text-dim);
-    margin-bottom: 8px;
+    font-size: 11px;
+    font-family: var(--font-sans);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1.2px;
+    color: var(--text-primary);
+    margin-bottom: 12px;
 }
 .footer-tech {
-    font-size: 12px;
+    font-size: 11px;
     font-family: var(--font-mono);
-    color: var(--text-dim);
-    opacity: 0.6;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1.2px;
+    color: var(--cyan);
+    opacity: 1;
 }
 
 /* ---------- SMTP Status Bar ---------- */

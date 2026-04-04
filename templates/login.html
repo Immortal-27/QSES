@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Sign in to QSES — Quantum-Simulated Email Security. Access the BB84 Protocol Simulation and AES-256-GCM Encryption.">
+    <title>QSES — Sign In</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/style.css">
+    <link rel="stylesheet" href="/static/css/auth.css">
+</head>
+<body>
+    <!-- 3D Chain Background (same as main site) -->
+    <iframe id="chain-bg-auth" src="/static/chainbg/index.html" frameborder="0" allowtransparency="true"></iframe>
+
+    <!-- Auth Container -->
+    <div class="auth-page">
+        <!-- Left: Branding Panel -->
+        <div class="auth-branding">
+            <div class="auth-brand-content">
+                <div class="auth-logo">
+                    <span class="auth-logo-icon">⚛️</span>
+                    <span class="auth-logo-text">QSES</span>
+                    <span class="auth-logo-badge">SIMULATION</span>
+                </div>
+                <h1 class="auth-brand-title">
+                    <span class="gradient-text">Quantum-Simulated</span><br>
+                    Email Security
+                </h1>
+                <p class="auth-brand-desc">
+                    Experience the BB84 quantum key distribution protocol — simulated classically —
+                    to understand how quantum mechanics could revolutionize email encryption.
+                </p>
+                <div class="auth-features">
+                    <div class="auth-feature">
+                        <span class="auth-feature-icon">🔬</span>
+                        <div>
+                            <div class="auth-feature-title">BB84 Protocol</div>
+                            <div class="auth-feature-desc">Step-by-step quantum key exchange simulation</div>
+                        </div>
+                    </div>
+                    <div class="auth-feature">
+                        <span class="auth-feature-icon">🔐</span>
+                        <div>
+                            <div class="auth-feature-title">AES-256-GCM</div>
+                            <div class="auth-feature-desc">Military-grade authenticated encryption</div>
+                        </div>
+                    </div>
+                    <div class="auth-feature">
+                        <span class="auth-feature-icon">🕵️</span>
+                        <div>
+                            <div class="auth-feature-title">Eve Detection</div>
+                            <div class="auth-feature-desc">Real-time eavesdropper detection via QBER</div>
+                        </div>
+                    </div>
+                </div>
+                <!-- Floating quantum states -->
+                <div class="auth-floating-states">
+                    <span class="auth-float s1">|0⟩</span>
+                    <span class="auth-float s2">|1⟩</span>
+                    <span class="auth-float s3">|+⟩</span>
+                    <span class="auth-float s4">|-⟩</span>
+                    <span class="auth-float s5">|ψ⟩</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right: Auth Forms -->
+        <div class="auth-form-panel">
+            <div class="auth-form-wrapper">
+                <!-- Tab Switcher -->
+                <div class="auth-tabs">
+                    <button class="auth-tab active" id="tab-login" data-tab="login">Sign In</button>
+                    <button class="auth-tab" id="tab-register" data-tab="register">Create Account</button>
+                    <div class="auth-tab-indicator" id="tab-indicator"></div>
+                </div>
+
+                <!-- Login Form -->
+                <form class="auth-form" id="form-login" autocomplete="off">
+                    <div class="auth-form-header">
+                        <h2>Welcome Back</h2>
+                        <p>Sign in to access the quantum simulation lab</p>
+                    </div>
+
+                    <div class="auth-field">
+                        <label for="login-email" class="auth-label">Email Address</label>
+                        <div class="auth-input-wrapper">
+                            <svg class="auth-input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+                                <polyline points="22,6 12,13 2,6"/>
+                            </svg>
+                            <input type="email" id="login-email" class="auth-input" placeholder="you@example.com" required>
+                        </div>
+                    </div>
+
+                    <div class="auth-field">
+                        <label for="login-password" class="auth-label">Password</label>
+                        <div class="auth-input-wrapper">
+                            <svg class="auth-input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                                <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                            </svg>
+                            <input type="password" id="login-password" class="auth-input" placeholder="••••••••" required>
+                            <button type="button" class="auth-toggle-password" id="toggle-login-pw" tabindex="-1">
+                                <svg class="eye-open" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18">
+                                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                                    <circle cx="12" cy="12" r="3"/>
+                                </svg>
+                                <svg class="eye-closed" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18" style="display:none;">
+                                    <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/>
+                                    <line x1="1" y1="1" x2="23" y2="23"/>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="auth-options">
+                        <label class="auth-remember">
+                            <input type="checkbox" id="remember-me">
+                            <span class="auth-checkbox"></span>
+                            Remember me
+                        </label>
+                        <a href="#" class="auth-forgot" id="forgot-password-link">Forgot password?</a>
+                    </div>
+
+                    <button type="submit" class="auth-btn auth-btn-primary" id="btn-login">
+                        <span class="auth-btn-text">Sign In</span>
+                        <span class="auth-btn-loader"></span>
+                    </button>
+
+                    <div class="auth-divider">
+                        <span>or continue with</span>
+                    </div>
+
+                    <button type="button" class="auth-btn auth-btn-google" id="btn-google-login">
+                        <svg viewBox="0 0 24 24" width="20" height="20">
+                            <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z"/>
+                            <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                            <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+                            <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+                        </svg>
+                        <span>Sign in with Google</span>
+                    </button>
+
+                    <!-- Error/Success Messages -->
+                    <div class="auth-message" id="login-message"></div>
+                </form>
+
+                <!-- Register Form -->
+                <form class="auth-form hidden" id="form-register" autocomplete="off">
+                    <div class="auth-form-header">
+                        <h2>Create an account</h2>
+                        <p>To start quantum experiments</p>
+                    </div>
+
+                    <div class="auth-field">
+                        <label for="register-name" class="auth-label">Full Name</label>
+                        <div class="auth-input-wrapper">
+                            <svg class="auth-input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                                <circle cx="12" cy="7" r="4"/>
+                            </svg>
+                            <input type="text" id="register-name" class="auth-input" placeholder="Alice Quantum" required>
+                        </div>
+                    </div>
+
+                    <div class="auth-field">
+                        <label for="register-email" class="auth-label">Email Address</label>
+                        <div class="auth-input-wrapper">
+                            <svg class="auth-input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+                                <polyline points="22,6 12,13 2,6"/>
+                            </svg>
+                            <input type="email" id="register-email" class="auth-input" placeholder="you@example.com" required>
+                        </div>
+                    </div>
+
+                    <div class="auth-field">
+                        <label for="register-password" class="auth-label">Password</label>
+                        <div class="auth-input-wrapper">
+                            <svg class="auth-input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                                <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                            </svg>
+                            <input type="password" id="register-password" class="auth-input" placeholder="Min 6 characters" required minlength="6">
+                            <button type="button" class="auth-toggle-password" id="toggle-register-pw" tabindex="-1">
+                                <svg class="eye-open" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18">
+                                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                                    <circle cx="12" cy="12" r="3"/>
+                                </svg>
+                                <svg class="eye-closed" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18" style="display:none;">
+                                    <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/>
+                                    <line x1="1" y1="1" x2="23" y2="23"/>
+                                </svg>
+                            </button>
+                        </div>
+                        <!-- Password Strength Meter -->
+                        <div class="password-strength" id="password-strength">
+                            <div class="strength-bars">
+                                <div class="strength-bar"></div>
+                                <div class="strength-bar"></div>
+                                <div class="strength-bar"></div>
+                                <div class="strength-bar"></div>
+                            </div>
+                            <span class="strength-text" id="strength-text"></span>
+                        </div>
+                    </div>
+
+                    <div class="auth-field">
+                        <label for="register-confirm" class="auth-label">Confirm Password</label>
+                        <div class="auth-input-wrapper">
+                            <svg class="auth-input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                            </svg>
+                            <input type="password" id="register-confirm" class="auth-input" placeholder="Re-enter your password" required minlength="6">
+                        </div>
+                    </div>
+
+                    <button type="submit" class="auth-btn auth-btn-primary" id="btn-register">
+                        <span class="auth-btn-text">Create Account</span>
+                        <span class="auth-btn-loader"></span>
+                    </button>
+
+                    <div class="auth-divider">
+                        <span>or continue with</span>
+                    </div>
+
+                    <button type="button" class="auth-btn auth-btn-google" id="btn-google-register">
+                        <svg viewBox="0 0 24 24" width="20" height="20">
+                            <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z"/>
+                            <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                            <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+                            <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+                        </svg>
+                        <span>Sign up with Google</span>
+                    </button>
+
+                    <!-- Error/Success Messages -->
+                    <div class="auth-message" id="register-message"></div>
+                </form>
+
+                <!-- Forgot Password Form (overlay) -->
+                <form class="auth-form hidden" id="form-forgot" autocomplete="off">
+                    <div class="auth-form-header">
+                        <h2>Reset Password</h2>
+                        <p>Enter your email and we'll send a reset link</p>
+                    </div>
+
+                    <div class="auth-field">
+                        <label for="forgot-email" class="auth-label">Email Address</label>
+                        <div class="auth-input-wrapper">
+                            <svg class="auth-input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+                                <polyline points="22,6 12,13 2,6"/>
+                            </svg>
+                            <input type="email" id="forgot-email" class="auth-input" placeholder="you@example.com" required>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="auth-btn auth-btn-primary" id="btn-forgot">
+                        <span class="auth-btn-text">Send Reset Link</span>
+                        <span class="auth-btn-loader"></span>
+                    </button>
+
+                    <button type="button" class="auth-back-link" id="back-to-login">
+                        ← Back to Sign In
+                    </button>
+
+                    <div class="auth-message" id="forgot-message"></div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase Auth — loads config from backend API (/api/firebase-config) -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
+        import {
+            getAuth,
+            createUserWithEmailAndPassword,
+            signInWithEmailAndPassword,
+            signInWithPopup,
+            GoogleAuthProvider,
+            updateProfile,
+            sendPasswordResetEmail,
+            onAuthStateChanged
+        } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-auth.js";
+        import {
+            getFirestore,
+            doc,
+            setDoc,
+            serverTimestamp
+        } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
+
+        // ─── Fetch Firebase config from backend (.env) ──────
+        let app, auth, db, googleProvider;
+
+        async function initFirebase() {
+            try {
+                const res = await fetch('/api/firebase-config');
+                if (!res.ok) throw new Error('Failed to load Firebase config');
+                const firebaseConfig = await res.json();
+
+                // Validate that required keys are present
+                if (!firebaseConfig.apiKey || !firebaseConfig.projectId) {
+                    throw new Error('Firebase config is incomplete. Check your .env file.');
+                }
+
+                app = initializeApp(firebaseConfig);
+                auth = getAuth(app);
+                db = getFirestore(app);
+                googleProvider = new GoogleAuthProvider();
+
+                // If already logged in, redirect to app
+                onAuthStateChanged(auth, (user) => {
+                    if (user) {
+                        window.location.href = '/app';
+                    }
+                });
+
+                // Now that Firebase is ready, enable all form submissions
+                enableForms();
+
+            } catch (err) {
+                console.error('Firebase initialization error:', err);
+                showMessage('login-message', 'Failed to connect to authentication service. Please refresh.', 'error');
+            }
+        }
+
+        // ─── Tab Switching ───────────────────────────────
+        const tabLogin = document.getElementById('tab-login');
+        const tabRegister = document.getElementById('tab-register');
+        const formLogin = document.getElementById('form-login');
+        const formRegister = document.getElementById('form-register');
+        const formForgot = document.getElementById('form-forgot');
+        const indicator = document.getElementById('tab-indicator');
+
+        function switchTab(tab) {
+            if (tab === 'login') {
+                tabLogin.classList.add('active');
+                tabRegister.classList.remove('active');
+                formLogin.classList.remove('hidden');
+                formRegister.classList.add('hidden');
+                formForgot.classList.add('hidden');
+                indicator.style.transform = 'translateX(0)';
+            } else {
+                tabRegister.classList.add('active');
+                tabLogin.classList.remove('active');
+                formRegister.classList.remove('hidden');
+                formLogin.classList.add('hidden');
+                formForgot.classList.add('hidden');
+                indicator.style.transform = 'translateX(100%)';
+            }
+            clearMessages();
+        }
+
+        tabLogin.addEventListener('click', () => switchTab('login'));
+        tabRegister.addEventListener('click', () => switchTab('register'));
+
+        // Forgot Password
+        document.getElementById('forgot-password-link').addEventListener('click', (e) => {
+            e.preventDefault();
+            formLogin.classList.add('hidden');
+            formRegister.classList.add('hidden');
+            formForgot.classList.remove('hidden');
+            tabLogin.classList.remove('active');
+            tabRegister.classList.remove('active');
+        });
+
+        document.getElementById('back-to-login').addEventListener('click', () => {
+            switchTab('login');
+        });
+
+        // ─── Password Toggle ────────────────────────────
+        document.querySelectorAll('.auth-toggle-password').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const input = btn.parentElement.querySelector('.auth-input');
+                const eyeOpen = btn.querySelector('.eye-open');
+                const eyeClosed = btn.querySelector('.eye-closed');
+                if (input.type === 'password') {
+                    input.type = 'text';
+                    eyeOpen.style.display = 'none';
+                    eyeClosed.style.display = 'block';
+                } else {
+                    input.type = 'password';
+                    eyeOpen.style.display = 'block';
+                    eyeClosed.style.display = 'none';
+                }
+            });
+        });
+
+        // ─── Password Strength ──────────────────────────
+        const registerPassword = document.getElementById('register-password');
+        const strengthBars = document.querySelectorAll('.strength-bar');
+        const strengthText = document.getElementById('strength-text');
+
+        registerPassword.addEventListener('input', () => {
+            const val = registerPassword.value;
+            let score = 0;
+            if (val.length >= 6) score++;
+            if (val.length >= 10) score++;
+            if (/[A-Z]/.test(val) && /[a-z]/.test(val)) score++;
+            if (/[0-9]/.test(val) && /[^A-Za-z0-9]/.test(val)) score++;
+
+            const labels = ['', 'Weak', 'Fair', 'Good', 'Strong'];
+            const colors = ['', '#ff5252', '#ffd740', '#69f0ae', '#00e5ff'];
+
+            strengthBars.forEach((bar, i) => {
+                bar.style.background = i < score ? colors[score] : 'rgba(255,255,255,0.08)';
+            });
+            strengthText.textContent = val.length > 0 ? labels[score] : '';
+            strengthText.style.color = colors[score];
+        });
+
+        // ─── Helper Functions ───────────────────────────
+        function showMessage(elementId, message, type = 'error') {
+            const el = document.getElementById(elementId);
+            el.textContent = message;
+            el.className = `auth-message ${type}`;
+            el.style.display = 'block';
+        }
+
+        function clearMessages() {
+            document.querySelectorAll('.auth-message').forEach(el => {
+                el.style.display = 'none';
+                el.textContent = '';
+            });
+        }
+
+        function setLoading(btnId, loading) {
+            const btn = document.getElementById(btnId);
+            if (loading) {
+                btn.classList.add('loading');
+                btn.disabled = true;
+            } else {
+                btn.classList.remove('loading');
+                btn.disabled = false;
+            }
+        }
+
+        function friendlyError(code) {
+            const map = {
+                'auth/email-already-in-use': 'An account with this email already exists.',
+                'auth/invalid-email': 'Please enter a valid email address.',
+                'auth/weak-password': 'Password must be at least 6 characters.',
+                'auth/user-not-found': 'No account found with this email.',
+                'auth/wrong-password': 'Incorrect password. Try again or reset it.',
+                'auth/invalid-credential': 'Invalid email or password. Please try again.',
+                'auth/too-many-requests': 'Too many attempts. Please wait a moment and try again.',
+                'auth/popup-closed-by-user': 'Sign-in popup was closed. Try again.',
+                'auth/network-request-failed': 'Network error. Please check your connection.',
+            };
+            return map[code] || 'Something went wrong. Please try again.';
+        }
+
+        // ─── Save user profile to Firestore ─────────────
+        async function saveUserProfile(user, name) {
+            try {
+                await setDoc(doc(db, "users", user.uid), {
+                    uid: user.uid,
+                    name: name || user.displayName || 'Anonymous',
+                    email: user.email,
+                    photoURL: user.photoURL || null,
+                    provider: user.providerData[0]?.providerId || 'email',
+                    created_at: serverTimestamp(),
+                    last_login: serverTimestamp()
+                }, { merge: true });
+            } catch (e) {
+                console.error("Error saving user profile:", e);
+            }
+        }
+
+        // ─── Enable forms after Firebase init ───────────
+        function enableForms() {
+            // Email/Password Registration
+            formRegister.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                clearMessages();
+
+                const name = document.getElementById('register-name').value.trim();
+                const email = document.getElementById('register-email').value.trim();
+                const password = document.getElementById('register-password').value;
+                const confirm = document.getElementById('register-confirm').value;
+
+                if (password !== confirm) {
+                    showMessage('register-message', 'Passwords do not match.', 'error');
+                    return;
+                }
+
+                setLoading('btn-register', true);
+
+                try {
+                    const cred = await createUserWithEmailAndPassword(auth, email, password);
+                    await updateProfile(cred.user, { displayName: name });
+                    await saveUserProfile(cred.user, name);
+                    showMessage('register-message', '✅ Account created! Redirecting...', 'success');
+                    setTimeout(() => { window.location.href = '/app'; }, 1200);
+                } catch (err) {
+                    showMessage('register-message', friendlyError(err.code), 'error');
+                } finally {
+                    setLoading('btn-register', false);
+                }
+            });
+
+            // Email/Password Login
+            formLogin.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                clearMessages();
+
+                const email = document.getElementById('login-email').value.trim();
+                const password = document.getElementById('login-password').value;
+
+                setLoading('btn-login', true);
+
+                try {
+                    const cred = await signInWithEmailAndPassword(auth, email, password);
+                    await saveUserProfile(cred.user, cred.user.displayName);
+                    showMessage('login-message', '✅ Signed in! Redirecting...', 'success');
+                    setTimeout(() => { window.location.href = '/app'; }, 800);
+                } catch (err) {
+                    showMessage('login-message', friendlyError(err.code), 'error');
+                } finally {
+                    setLoading('btn-login', false);
+                }
+            });
+
+            // Google Sign In
+            async function googleSignIn(messageEl) {
+                clearMessages();
+                try {
+                    const result = await signInWithPopup(auth, googleProvider);
+                    await saveUserProfile(result.user, result.user.displayName);
+                    showMessage(messageEl, '✅ Signed in with Google! Redirecting...', 'success');
+                    setTimeout(() => { window.location.href = '/app'; }, 800);
+                } catch (err) {
+                    showMessage(messageEl, friendlyError(err.code), 'error');
+                }
+            }
+
+            document.getElementById('btn-google-login').addEventListener('click', () => googleSignIn('login-message'));
+            document.getElementById('btn-google-register').addEventListener('click', () => googleSignIn('register-message'));
+
+            // Forgot Password
+            formForgot.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                clearMessages();
+
+                const email = document.getElementById('forgot-email').value.trim();
+                setLoading('btn-forgot', true);
+
+                try {
+                    await sendPasswordResetEmail(auth, email);
+                    showMessage('forgot-message', '✅ Reset link sent! Check your inbox.', 'success');
+                } catch (err) {
+                    showMessage('forgot-message', friendlyError(err.code), 'error');
+                } finally {
+                    setLoading('btn-forgot', false);
+                }
+            });
+        }
+
+        // ─── Initialize ─────────────────────────────────
+        initFirebase();
+    </script>
+</body>
+</html>

@@ -39,6 +39,32 @@ def index():
     return render_template("index.html")
 
 
+@app.route("/login")
+def login():
+    """Serve the authentication page."""
+    return render_template("login.html")
+
+
+@app.route("/app")
+def app_page():
+    """Post-login redirect — serves the main app page."""
+    return render_template("index.html")
+
+
+@app.route("/api/firebase-config")
+def firebase_config():
+    """Serve Firebase client configuration from environment variables."""
+    return jsonify({
+        "apiKey": os.getenv("FIREBASE_API_KEY", ""),
+        "authDomain": os.getenv("FIREBASE_AUTH_DOMAIN", ""),
+        "projectId": os.getenv("FIREBASE_PROJECT_ID", ""),
+        "storageBucket": os.getenv("FIREBASE_STORAGE_BUCKET", ""),
+        "messagingSenderId": os.getenv("FIREBASE_MESSAGING_SENDER_ID", ""),
+        "appId": os.getenv("FIREBASE_APP_ID", ""),
+        "measurementId": os.getenv("FIREBASE_MEASUREMENT_ID", ""),
+    })
+
+
 @app.route("/api/simulate-qkd", methods=["POST"])
 def simulate_qkd():
     """
@@ -287,17 +313,17 @@ def smtp_send():
 if __name__ == "__main__":
     print("\n" + "=" * 60)
     print("  Quantum-Simulated Email Security (QSES)")
-    print("  ⚛️  BB84 Protocol Simulation + AES-256-GCM Encryption")
+    print("  [*] BB84 Protocol Simulation + AES-256-GCM Encryption")
     print("=" * 60)
-    print("  DISCLAIMER: Classical simulation — not real QKD!")
+    print("  DISCLAIMER: Classical simulation -- not real QKD!")
     print("=" * 60)
 
     # Show SMTP status
     if smtp.is_configured():
         status = smtp.get_status()
-        print(f"\n  📧 SMTP: Configured ({status['masked_email']} via {status['server']})")
+        print(f"\n  [SMTP] Configured ({status['masked_email']} via {status['server']})")
     else:
-        print("\n  📧 SMTP: Not configured — edit .env to add credentials")
+        print("\n  [SMTP] Not configured -- edit .env to add credentials")
 
-    print(f"\n  🌐 Open http://127.0.0.1:5000 in your browser\n")
+    print(f"\n  [*] Open http://127.0.0.1:5000 in your browser\n")
     app.run(debug=True, host="127.0.0.1", port=5000)

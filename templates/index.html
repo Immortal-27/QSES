@@ -28,6 +28,59 @@
             <a href="#send-email" class="nav-link" data-section="send-email">Send Email</a>
             <a href="#eavesdrop" class="nav-link" data-section="eavesdrop">Detect Eve</a>
         </div>
+
+        <!-- Auth: Login / Profile -->
+        <div class="nav-auth" id="nav-auth">
+            <!-- Guest State -->
+            <a href="/login" class="nav-auth-login" id="nav-login-btn">
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/>
+                    <polyline points="10 17 15 12 10 7"/>
+                    <line x1="15" y1="12" x2="3" y2="12"/>
+                </svg>
+                <span>Sign In</span>
+            </a>
+
+            <!-- Logged-in State (hidden by default) -->
+            <div class="nav-profile" id="nav-profile" style="display:none;">
+                <button class="nav-profile-btn" id="nav-profile-btn">
+                    <div class="nav-avatar" id="nav-avatar">
+                        <span id="nav-avatar-letter">?</span>
+                    </div>
+                    <span class="nav-user-name" id="nav-user-name">User</span>
+                    <svg class="nav-profile-chevron" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="6 9 12 15 18 9"/>
+                    </svg>
+                </button>
+                <div class="nav-profile-dropdown" id="nav-profile-dropdown">
+                    <div class="nav-dropdown-header">
+                        <div class="nav-dropdown-avatar" id="nav-dropdown-avatar">
+                            <span id="nav-dropdown-letter">?</span>
+                        </div>
+                        <div class="nav-dropdown-info">
+                            <div class="nav-dropdown-name" id="nav-dropdown-name">User</div>
+                            <div class="nav-dropdown-email" id="nav-dropdown-email">user@example.com</div>
+                        </div>
+                    </div>
+                    <div class="nav-dropdown-divider"></div>
+                    <a href="/profile" class="nav-dropdown-item" id="nav-dropdown-profile">
+                        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                            <circle cx="12" cy="7" r="4"/>
+                        </svg>
+                        <span>Profile</span>
+                    </a>
+                    <button class="nav-dropdown-item nav-dropdown-signout" id="nav-signout-btn">
+                        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+                            <polyline points="16 17 21 12 16 7"/>
+                            <line x1="21" y1="12" x2="9" y2="12"/>
+                        </svg>
+                        <span>Sign Out</span>
+                    </button>
+                </div>
+            </div>
+        </div>
     </nav>
 
     <!-- Hero Section -->
@@ -480,5 +533,93 @@
     </footer>
 
     <script src="/static/js/main.js"></script>
+
+    <!-- Firebase Auth: Navbar login/profile state -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
+        import {
+            getAuth,
+            onAuthStateChanged,
+            signOut
+        } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-auth.js";
+
+        async function initNavAuth() {
+            try {
+                const res = await fetch('/api/firebase-config');
+                if (!res.ok) return;
+                const config = await res.json();
+                if (!config.apiKey) return;
+
+                const app = initializeApp(config);
+                const auth = getAuth(app);
+
+                const loginBtn = document.getElementById('nav-login-btn');
+                const profileEl = document.getElementById('nav-profile');
+                const avatarLetter = document.getElementById('nav-avatar-letter');
+                const userName = document.getElementById('nav-user-name');
+                const dropdownLetter = document.getElementById('nav-dropdown-letter');
+                const dropdownName = document.getElementById('nav-dropdown-name');
+                const dropdownEmail = document.getElementById('nav-dropdown-email');
+                const avatar = document.getElementById('nav-avatar');
+                const dropdownAvatar = document.getElementById('nav-dropdown-avatar');
+
+                onAuthStateChanged(auth, (user) => {
+                    if (user) {
+                        // Logged in — show profile
+                        loginBtn.style.display = 'none';
+                        profileEl.style.display = 'block';
+
+                        const name = user.displayName || 'User';
+                        const email = user.email || '';
+                        const letter = name.charAt(0).toUpperCase();
+
+                        avatarLetter.textContent = letter;
+                        userName.textContent = name.split(' ')[0];
+                        dropdownLetter.textContent = letter;
+                        dropdownName.textContent = name;
+                        dropdownEmail.textContent = email;
+
+                        // If user has a photo, use it
+                        if (user.photoURL) {
+                            avatar.innerHTML = '<img src="' + user.photoURL + '" alt="avatar" class="nav-avatar-img">';
+                            dropdownAvatar.innerHTML = '<img src="' + user.photoURL + '" alt="avatar" class="nav-avatar-img">';
+                        }
+                    } else {
+                        // Not logged in — show login button
+                        loginBtn.style.display = 'flex';
+                        profileEl.style.display = 'none';
+                    }
+                });
+
+                // Profile dropdown toggle
+                const profileBtn = document.getElementById('nav-profile-btn');
+                const dropdown = document.getElementById('nav-profile-dropdown');
+
+                profileBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    dropdown.classList.toggle('open');
+                });
+
+                document.addEventListener('click', () => {
+                    dropdown.classList.remove('open');
+                });
+
+                dropdown.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                });
+
+                // Sign out
+                document.getElementById('nav-signout-btn').addEventListener('click', async () => {
+                    await signOut(auth);
+                    window.location.href = '/login';
+                });
+
+            } catch (err) {
+                console.error('Nav auth error:', err);
+            }
+        }
+
+        initNavAuth();
+    </script>
 </body>
 </html>

@@ -1,0 +1,620 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="QSES Agent Profile — Manage your quantum identity, view session analytics, and monitor activity within the quantum-secured network.">
+    <title>QSES — Agent Profile Dashboard</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&family=Orbitron:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/style.css">
+    <style>
+        /* ============================================================
+           PROFILE PAGE — Ultra Hi-Tech Redesign
+           ============================================================ */
+
+        .profile-hero-title, .ring-value, .threat-level-value,
+        .security-score-value, .hud-label, .hud-big-num {
+            font-family: 'Orbitron', var(--font-mono);
+        }
+
+        /* --- Matrix Rain Canvas --- */
+        #matrix-rain { position: fixed; inset: 0; z-index: 0; pointer-events: none; opacity: 0.06; }
+
+        /* --- Scanline --- */
+        .scanline-overlay {
+            position: fixed; inset: 0; pointer-events: none; z-index: 2;
+            background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,229,255,0.007) 2px, rgba(0,229,255,0.007) 4px);
+            animation: scanScroll 10s linear infinite;
+        }
+        @keyframes scanScroll { from { background-position: 0 0; } to { background-position: 0 100vh; } }
+
+        /* --- Hex Grid BG --- */
+        .hex-grid-bg {
+            position: fixed; inset: 0; z-index: 0; pointer-events: none; opacity: 0.025;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='60' height='52' viewBox='0 0 60 52'%3E%3Cpolygon fill='none' stroke='%2300e5ff' stroke-width='0.5' points='30,1 58,15 58,37 30,51 2,37 2,15'/%3E%3C/svg%3E");
+            background-size: 60px 52px;
+        }
+
+        /* --- Hero Banner --- */
+        .profile-hero {
+            position: relative; z-index: 10; padding: 110px 24px 50px;
+            text-align: center; overflow: hidden;
+        }
+        .profile-hero::before {
+            content: ''; position: absolute; inset: 0;
+            background: radial-gradient(ellipse at 50% 0%, rgba(0,229,255,0.07) 0%, transparent 60%),
+                        radial-gradient(ellipse at 80% 50%, rgba(179,136,255,0.05) 0%, transparent 50%);
+            pointer-events: none;
+        }
+
+        /* Corner HUD brackets */
+        .hud-corner { position: absolute; width: 40px; height: 40px; pointer-events: none; z-index: 3; }
+        .hud-corner::before, .hud-corner::after { content:''; position: absolute; background: var(--cyan); }
+        .hud-corner--tl { top: 80px; left: 24px; }
+        .hud-corner--tl::before { top:0; left:0; width:2px; height:100%; }
+        .hud-corner--tl::after { top:0; left:0; width:100%; height:2px; }
+        .hud-corner--tr { top: 80px; right: 24px; }
+        .hud-corner--tr::before { top:0; right:0; width:2px; height:100%; }
+        .hud-corner--tr::after { top:0; right:0; width:100%; height:2px; }
+        .hud-corner--bl { bottom: 10px; left: 24px; }
+        .hud-corner--bl::before { bottom:0; left:0; width:2px; height:100%; }
+        .hud-corner--bl::after { bottom:0; left:0; width:100%; height:2px; }
+        .hud-corner--br { bottom: 10px; right: 24px; }
+        .hud-corner--br::before { bottom:0; right:0; width:2px; height:100%; }
+        .hud-corner--br::after { bottom:0; right:0; width:100%; height:2px; }
+
+        .profile-hero-badge {
+            display: inline-flex; align-items: center; gap: 10px;
+            font-size: 10px; font-weight: 700; letter-spacing: 3px;
+            text-transform: uppercase; color: var(--cyan);
+            padding: 8px 22px; border-radius: 100px;
+            border: 1px solid rgba(0,229,255,0.2);
+            background: rgba(0,229,255,0.04); margin-bottom: 24px;
+            backdrop-filter: blur(10px);
+        }
+        .profile-hero-badge .pulse-dot { width:7px; height:7px; border-radius:50%; background:var(--cyan); animation:pulse 2s ease-in-out infinite; }
+
+        .profile-hero-title { font-size: 3rem; font-weight: 900; letter-spacing: 3px; margin-bottom: 10px; line-height: 1.1; }
+        .profile-hero-sub { font-size: 15px; color: var(--text-secondary); max-width: 500px; margin: 0 auto 32px; line-height: 1.7; }
+
+        /* --- Holographic Avatar Card --- */
+        .holo-avatar-card {
+            position: relative; display: inline-flex; flex-direction: column; align-items: center;
+            padding: 36px 50px 32px; border-radius: var(--radius-xl);
+            background: linear-gradient(135deg, rgba(0,229,255,0.03), rgba(179,136,255,0.03));
+            border: 1px solid rgba(0,229,255,0.1); backdrop-filter: blur(30px);
+            animation: holoShimmer 6s ease-in-out infinite; overflow: hidden;
+        }
+        .holo-avatar-card::before {
+            content: ''; position: absolute; top:-50%; left:-50%; width:200%; height:200%;
+            background: conic-gradient(from 0deg, transparent 0%, rgba(0,229,255,0.05) 25%, transparent 50%, rgba(179,136,255,0.05) 75%, transparent 100%);
+            animation: holoRotate 8s linear infinite;
+        }
+        @keyframes holoRotate { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
+        @keyframes holoShimmer {
+            0%,100% { box-shadow: 0 0 30px rgba(0,229,255,0.04), inset 0 0 30px rgba(0,229,255,0.02); }
+            50% { box-shadow: 0 0 50px rgba(0,229,255,0.08), inset 0 0 50px rgba(179,136,255,0.04); }
+        }
+
+        .avatar-ring {
+            position: relative; z-index: 2; width: 100px; height: 100px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center; font-size: 3rem;
+            background: rgba(0,229,255,0.05); border: 2px solid var(--cyan);
+            box-shadow: 0 0 25px rgba(0,229,255,0.12), inset 0 0 15px rgba(0,229,255,0.04);
+            margin-bottom: 16px; animation: avatarPulse 4s ease-in-out infinite;
+        }
+        .avatar-ring::after {
+            content:''; position:absolute; inset:-8px; border-radius:50%;
+            border: 1px dashed rgba(0,229,255,0.15); animation: holoRotate 20s linear infinite reverse;
+        }
+        @keyframes avatarPulse {
+            0%,100% { box-shadow: 0 0 25px rgba(0,229,255,0.12); }
+            50% { box-shadow: 0 0 45px rgba(0,229,255,0.22); }
+        }
+
+        .avatar-name { position:relative; z-index:2; font-size:20px; font-weight:800; color:var(--text-primary); margin-bottom:3px; }
+        .avatar-handle { position:relative; z-index:2; font-family:var(--font-mono); font-size:13px; color:var(--cyan); margin-bottom:8px; }
+        .avatar-bio { position:relative; z-index:2; font-size:12px; color:var(--text-secondary); max-width:260px; text-align:center; line-height:1.5; }
+        .avatar-status-badge {
+            position:relative; z-index:2; display:inline-flex; align-items:center; gap:6px;
+            margin-top:12px; font-size:9px; font-weight:700; letter-spacing:1.5px;
+            text-transform:uppercase; padding:4px 14px; border-radius:100px;
+            background:rgba(105,240,174,0.08); color:var(--green); border:1px solid rgba(105,240,174,0.15);
+        }
+        .status-dot { width:6px; height:6px; border-radius:50%; background:var(--green); animation:pulse 2s ease-in-out infinite; }
+
+        /* --- Glow Divider --- */
+        .glow-divider { height:1px; background:linear-gradient(90deg,transparent,var(--cyan-dim),var(--purple-dim),transparent); margin:0 auto; max-width:600px; border:none; }
+
+        /* --- Dashboard Grid --- */
+        .profile-dashboard {
+            max-width: 1200px; margin: 0 auto; padding: 0 24px 60px;
+            position: relative; z-index: 10;
+            display: grid; grid-template-columns: 1fr 1fr; gap: 22px;
+        }
+        .profile-dashboard .full-width { grid-column: 1 / -1; }
+
+        /* --- HUD Stat Cards (top row) --- */
+        .hud-stat-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+        .hud-stat-card {
+            position: relative; text-align: center; padding: 24px 12px 20px;
+            background: rgba(7,7,14,0.6); border: 1px solid rgba(0,229,255,0.08);
+            border-radius: var(--radius-lg); backdrop-filter: blur(20px);
+            transition: all 0.35s ease; overflow: hidden;
+        }
+        .hud-stat-card::before {
+            content:''; position:absolute; top:0; left:0; right:0; height:2px;
+            background: linear-gradient(90deg, transparent, var(--cyan), transparent);
+            opacity: 0; transition: opacity 0.3s ease;
+        }
+        .hud-stat-card:hover::before { opacity: 1; }
+        .hud-stat-card:hover { border-color: rgba(0,229,255,0.2); transform: translateY(-4px); box-shadow: 0 12px 40px rgba(0,0,0,0.4), 0 0 20px rgba(0,229,255,0.05); }
+
+        .hud-stat-icon { font-size: 22px; margin-bottom: 8px; }
+        .ring-container { position:relative; width:80px; height:80px; margin:0 auto 10px; }
+        .ring-svg { width:100%; height:100%; transform:rotate(-90deg); }
+        .ring-bg { fill:none; stroke:rgba(99,110,180,0.08); stroke-width:4; }
+        .ring-fill { fill:none; stroke-width:4; stroke-linecap:round; stroke-dasharray:226; stroke-dashoffset:226; transition: stroke-dashoffset 2s cubic-bezier(0.4,0,0.2,1); filter:drop-shadow(0 0 5px currentColor); }
+        .ring-fill.cyan { stroke:var(--cyan); color:var(--cyan); }
+        .ring-fill.purple { stroke:var(--purple); color:var(--purple); }
+        .ring-fill.green { stroke:var(--green); color:var(--green); }
+        .ring-fill.pink { stroke:var(--pink); color:var(--pink); }
+
+        .ring-value { position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); font-size:20px; font-weight:800; color:var(--text-primary); }
+        .hud-label { font-size:9px; font-weight:600; color:var(--text-dim); text-transform:uppercase; letter-spacing:1.5px; }
+
+        /* --- Security Panel --- */
+        .security-panel { padding: 26px; }
+        .security-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 14px; }
+        .security-metric {
+            padding: 14px; background: rgba(0,0,0,0.25); border-radius: var(--radius-md);
+            border: 1px solid rgba(99,110,180,0.06); transition: all 0.3s ease;
+        }
+        .security-metric:hover { border-color: rgba(0,229,255,0.12); background: rgba(0,0,0,0.35); }
+        .metric-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:8px; }
+        .metric-label { font-size:10px; font-weight:600; color:var(--text-dim); text-transform:uppercase; letter-spacing:1px; }
+        .metric-icon { font-size:15px; }
+        .metric-value { font-size:24px; font-weight:800; font-family:var(--font-mono); margin-bottom:6px; }
+        .metric-bar { height:3px; background:rgba(99,110,180,0.08); border-radius:2px; overflow:hidden; }
+        .metric-bar-fill { height:100%; border-radius:2px; transition:width 2s cubic-bezier(0.4,0,0.2,1); width:0; }
+        .metric-bar-fill.cyan { background:var(--cyan); box-shadow:0 0 6px var(--cyan-glow); }
+        .metric-bar-fill.green { background:var(--green); box-shadow:0 0 6px var(--green-glow); }
+        .metric-bar-fill.purple { background:var(--purple); box-shadow:0 0 6px var(--purple-glow); }
+        .metric-bar-fill.pink { background:var(--pink); box-shadow:0 0 6px var(--pink-glow); }
+
+        .security-score-container {
+            grid-column:1/-1; text-align:center; padding:18px;
+            background:rgba(0,0,0,0.2); border-radius:var(--radius-md); border:1px solid var(--border);
+        }
+        .security-score-label { font-size:10px; font-weight:600; color:var(--text-dim); text-transform:uppercase; letter-spacing:2px; margin-bottom:6px; }
+        .security-score-value {
+            font-size:44px; font-weight:900;
+            background:linear-gradient(135deg,var(--green),var(--cyan));
+            -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent;
+        }
+        .security-score-bar { max-width:280px; margin:8px auto 0; height:5px; background:rgba(99,110,180,0.08); border-radius:3px; overflow:hidden; }
+        .security-score-fill { height:100%; border-radius:3px; background:linear-gradient(90deg,var(--green),var(--cyan)); box-shadow:0 0 10px var(--cyan-glow); transition:width 2.5s cubic-bezier(0.4,0,0.2,1); width:0; }
+
+        /* --- Identity Editor --- */
+        .identity-editor { padding: 26px; }
+        .avatar-picker { display:flex; gap:10px; margin-top:8px; flex-wrap:wrap; }
+        .avatar-pick-option {
+            width:48px; height:48px; display:flex; align-items:center; justify-content:center;
+            font-size:1.5rem; background:rgba(255,255,255,0.02); border:2px solid rgba(255,255,255,0.05);
+            border-radius:12px; cursor:pointer; transition:all 0.25s ease; position:relative;
+        }
+        .avatar-pick-option:hover { border-color:rgba(255,255,255,0.12); background:rgba(255,255,255,0.05); transform:scale(1.08); }
+        .avatar-pick-option.selected { border-color:var(--cyan); background:rgba(0,229,255,0.06); box-shadow:0 0 14px rgba(0,229,255,0.15); }
+        .avatar-pick-option.selected::after {
+            content:'✓'; position:absolute; top:-4px; right:-4px; width:16px; height:16px;
+            border-radius:50%; background:var(--cyan); color:var(--bg-primary);
+            font-size:9px; font-weight:700; display:flex; align-items:center; justify-content:center;
+        }
+        .save-btn-wrapper { margin-top: 18px; }
+        #save-status { margin-top:10px; text-align:center; font-size:12px; font-weight:600; height:1.4em; transition:all 0.3s ease; }
+
+        /* --- Activity Timeline --- */
+        .activity-timeline { padding:26px; max-height:540px; overflow:hidden; display:flex; flex-direction:column; }
+        .timeline-feed { flex:1; overflow-y:auto; padding-right:6px; }
+        .timeline-item {
+            position:relative; padding:14px 14px 14px 34px; margin-bottom:10px;
+            border-radius:var(--radius-md); background:rgba(0,0,0,0.12);
+            border:1px solid rgba(99,110,180,0.06); transition:all 0.3s ease;
+            animation:timelineSlideIn 0.5s ease forwards; opacity:0; transform:translateX(-10px);
+        }
+        .timeline-item:hover { border-color:rgba(0,229,255,0.1); background:rgba(0,0,0,0.22); }
+        @keyframes timelineSlideIn { to { opacity:1; transform:translateX(0); } }
+        .timeline-item::before { content:''; position:absolute; left:12px; top:20px; width:7px; height:7px; border-radius:50%; background:var(--cyan); box-shadow:0 0 6px var(--cyan-glow); }
+        .timeline-item::after { content:''; position:absolute; left:14.5px; top:31px; width:2px; height:calc(100% - 10px); background:rgba(0,229,255,0.06); }
+        .timeline-item:last-child::after { display:none; }
+        .timeline-time { font-family:var(--font-mono); font-size:9px; color:var(--text-dim); margin-bottom:3px; letter-spacing:0.5px; }
+        .timeline-action { font-size:13px; font-weight:700; color:var(--text-primary); margin-bottom:2px; }
+        .timeline-details { font-size:11px; color:var(--text-secondary); line-height:1.5; }
+        .timeline-empty { text-align:center; padding:40px 20px; color:var(--text-dim); }
+        .timeline-empty-icon { font-size:40px; margin-bottom:12px; opacity:0.25; }
+        .timeline-empty p { font-size:13px; }
+
+        /* --- Quick Actions --- */
+        .quick-actions { display:flex; gap:12px; justify-content:center; flex-wrap:wrap; }
+        .quick-action-btn {
+            display:inline-flex; align-items:center; gap:8px; padding:11px 20px;
+            border-radius:var(--radius-md); border:1px solid var(--border);
+            background:var(--glass-bg); color:var(--text-secondary);
+            font-family:var(--font-sans); font-size:12px; font-weight:600;
+            cursor:pointer; transition:all 0.3s ease; backdrop-filter:blur(10px); text-decoration:none;
+        }
+        .quick-action-btn:hover { border-color:var(--border-glow); color:var(--cyan); transform:translateY(-2px); box-shadow:0 8px 24px rgba(0,0,0,0.3), 0 0 12px rgba(0,229,255,0.06); }
+        .quick-action-btn .qa-icon { font-size:14px; }
+
+        /* --- Entrance Animations --- */
+        .fade-up { opacity:0; transform:translateY(18px); animation:fadeUpIn 0.6s ease forwards; }
+        .fade-up-delay-1 { animation-delay:0.08s; }
+        .fade-up-delay-2 { animation-delay:0.16s; }
+        .fade-up-delay-3 { animation-delay:0.24s; }
+        .fade-up-delay-4 { animation-delay:0.32s; }
+        .fade-up-delay-5 { animation-delay:0.4s; }
+        @keyframes fadeUpIn { to { opacity:1; transform:translateY(0); } }
+
+        /* --- Responsive --- */
+        @media (max-width: 1000px) {
+            .profile-dashboard { grid-template-columns:1fr; }
+            .hud-stat-row { grid-template-columns:repeat(2,1fr); }
+            .profile-hero-title { font-size:2rem; }
+        }
+        @media (max-width: 600px) {
+            .hud-stat-row { grid-template-columns:1fr 1fr; }
+            .security-grid { grid-template-columns:1fr; }
+            .profile-hero-title { font-size:1.6rem; }
+            .holo-avatar-card { padding:28px 24px 24px; }
+            .quick-actions { flex-direction:column; align-items:stretch; }
+            .hud-corner { display: none; }
+        }
+    </style>
+</head>
+<body>
+    <div class="hex-grid-bg"></div>
+    <canvas id="matrix-rain"></canvas>
+    <iframe id="chain-bg" src="/static/chainbg/index.html" frameborder="0" allowtransparency="true"></iframe>
+    <div class="scanline-overlay"></div>
+
+    <!-- Navigation -->
+    <nav class="navbar" id="navbar">
+        <div class="nav-brand">
+            <span class="nav-icon">⚛️</span>
+            <span class="nav-title">QSES</span>
+            <span class="nav-badge">PROFILE</span>
+        </div>
+        <div class="nav-links">
+            <a href="/" class="nav-link">🏠 Home</a>
+            <a href="/#simulation" class="nav-link">🔬 BB84</a>
+            <a href="/#encryption" class="nav-link">🔐 Encrypt</a>
+            <a href="/profile" class="nav-link active">👤 Profile</a>
+        </div>
+    </nav>
+
+    <!-- ====== Profile Hero ====== -->
+    <section class="profile-hero">
+        <div class="profile-hero-badge fade-up">
+            <span class="pulse-dot"></span>
+            QUANTUM SESSION ACTIVE
+        </div>
+
+        <h1 class="profile-hero-title fade-up fade-up-delay-1">
+            <span class="gradient-text">Agent Profile</span>
+        </h1>
+        <p class="profile-hero-sub fade-up fade-up-delay-2">
+            Your quantum identity dashboard — manage credentials, monitor session analytics, and review activity within the secure network.
+        </p>
+
+        <div class="holo-avatar-card fade-up fade-up-delay-3" id="holo-card">
+            <div class="avatar-ring" id="avatar-display">
+                {% if profile.avatar == 'cyber' %}🤖{% elif profile.avatar == 'quantum' %}⚛️{% elif profile.avatar == 'secure' %}🛡️{% elif profile.avatar == 'hacker' %}💻{% elif profile.avatar == 'alien' %}👽{% else %}👤{% endif %}
+            </div>
+            <div class="avatar-name" id="display-name">{{ profile.name }}</div>
+            <div class="avatar-handle" id="display-handle">{{ profile.handle }}</div>
+            <div class="avatar-bio" id="display-bio">{{ profile.bio }}</div>
+            <div class="avatar-status-badge">
+                <span class="status-dot"></span>
+                Online — Quantum Secured
+            </div>
+        </div>
+    </section>
+
+    <hr class="glow-divider">
+
+    <!-- ====== Dashboard ====== -->
+    <section class="profile-dashboard" style="padding-top:36px;">
+
+        <!-- HUD Stat Cards -->
+        <div class="full-width fade-up fade-up-delay-3">
+            <div class="hud-stat-row">
+                <div class="hud-stat-card">
+                    <div class="hud-stat-icon">🔑</div>
+                    <div class="ring-container">
+                        <svg class="ring-svg" viewBox="0 0 80 80">
+                            <circle class="ring-bg" cx="40" cy="40" r="36"/>
+                            <circle class="ring-fill cyan" cx="40" cy="40" r="36" id="ring-keys"/>
+                        </svg>
+                        <div class="ring-value" id="val-keys">{{ stats.keys_generated }}</div>
+                    </div>
+                    <div class="hud-label">Keys Generated</div>
+                </div>
+                <div class="hud-stat-card">
+                    <div class="hud-stat-icon">📡</div>
+                    <div class="ring-container">
+                        <svg class="ring-svg" viewBox="0 0 80 80">
+                            <circle class="ring-bg" cx="40" cy="40" r="36"/>
+                            <circle class="ring-fill purple" cx="40" cy="40" r="36" id="ring-qubits"/>
+                        </svg>
+                        <div class="ring-value" id="val-qubits">{{ stats.total_qubits_sent }}</div>
+                    </div>
+                    <div class="hud-label">Qubits Sent</div>
+                </div>
+                <div class="hud-stat-card">
+                    <div class="hud-stat-icon">🔒</div>
+                    <div class="ring-container">
+                        <svg class="ring-svg" viewBox="0 0 80 80">
+                            <circle class="ring-bg" cx="40" cy="40" r="36"/>
+                            <circle class="ring-fill green" cx="40" cy="40" r="36" id="ring-enc"/>
+                        </svg>
+                        <div class="ring-value" id="val-enc">{{ stats.messages_encrypted }}</div>
+                    </div>
+                    <div class="hud-label">Tx Encrypted</div>
+                </div>
+                <div class="hud-stat-card">
+                    <div class="hud-stat-icon">🔓</div>
+                    <div class="ring-container">
+                        <svg class="ring-svg" viewBox="0 0 80 80">
+                            <circle class="ring-bg" cx="40" cy="40" r="36"/>
+                            <circle class="ring-fill pink" cx="40" cy="40" r="36" id="ring-dec"/>
+                        </svg>
+                        <div class="ring-value" id="val-dec">{{ stats.messages_decrypted }}</div>
+                    </div>
+                    <div class="hud-label">Rx Decrypted</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Security Dashboard -->
+        <div class="glass-card security-panel fade-up fade-up-delay-4">
+            <div class="panel-header">
+                <h3><span class="panel-icon">🛡️</span> Security Dashboard</h3>
+            </div>
+            <div class="security-grid">
+                <div class="security-metric">
+                    <div class="metric-header"><span class="metric-label">Encryption</span><span class="metric-icon">🔐</span></div>
+                    <div class="metric-value" style="color:var(--cyan);">AES-256</div>
+                    <div class="metric-bar"><div class="metric-bar-fill cyan" id="bar-enc-strength"></div></div>
+                </div>
+                <div class="security-metric">
+                    <div class="metric-header"><span class="metric-label">Protocol</span><span class="metric-icon">⚛️</span></div>
+                    <div class="metric-value" style="color:var(--purple);">BB84</div>
+                    <div class="metric-bar"><div class="metric-bar-fill purple" id="bar-protocol"></div></div>
+                </div>
+                <div class="security-metric">
+                    <div class="metric-header"><span class="metric-label">Key Derivation</span><span class="metric-icon">🔗</span></div>
+                    <div class="metric-value" style="color:var(--green);">HKDF</div>
+                    <div class="metric-bar"><div class="metric-bar-fill green" id="bar-kdf"></div></div>
+                </div>
+                <div class="security-metric">
+                    <div class="metric-header"><span class="metric-label">Auth Mode</span><span class="metric-icon">✅</span></div>
+                    <div class="metric-value" style="color:var(--pink);">GCM</div>
+                    <div class="metric-bar"><div class="metric-bar-fill pink" id="bar-auth"></div></div>
+                </div>
+                <div class="security-score-container">
+                    <div class="security-score-label">Overall Security Score</div>
+                    <div class="security-score-value" id="security-score">0</div>
+                    <div class="security-score-bar"><div class="security-score-fill" id="security-score-bar"></div></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Identity Editor -->
+        <div class="glass-card identity-editor fade-up fade-up-delay-4">
+            <div class="panel-header">
+                <h3><span class="panel-icon">✏️</span> Identity Editor</h3>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Avatar</label>
+                <div class="avatar-picker" id="avatar-picker">
+                    <div class="avatar-pick-option {% if profile.avatar == 'default' %}selected{% endif %}" data-avatar="default">👤</div>
+                    <div class="avatar-pick-option {% if profile.avatar == 'cyber' %}selected{% endif %}" data-avatar="cyber">🤖</div>
+                    <div class="avatar-pick-option {% if profile.avatar == 'quantum' %}selected{% endif %}" data-avatar="quantum">⚛️</div>
+                    <div class="avatar-pick-option {% if profile.avatar == 'secure' %}selected{% endif %}" data-avatar="secure">🛡️</div>
+                    <div class="avatar-pick-option {% if profile.avatar == 'hacker' %}selected{% endif %}" data-avatar="hacker">💻</div>
+                    <div class="avatar-pick-option {% if profile.avatar == 'alien' %}selected{% endif %}" data-avatar="alien">👽</div>
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="profile-name" class="form-label">Name / Designation</label>
+                <input type="text" id="profile-name" class="form-input" value="{{ profile.name }}">
+            </div>
+            <div class="form-group">
+                <label for="profile-handle" class="form-label">Network Handle</label>
+                <input type="text" id="profile-handle" class="form-input mono" value="{{ profile.handle }}">
+            </div>
+            <div class="form-group">
+                <label for="profile-bio" class="form-label">Bio (Status)</label>
+                <textarea id="profile-bio" class="form-textarea" rows="3">{{ profile.bio }}</textarea>
+            </div>
+            <div class="save-btn-wrapper">
+                <button class="btn btn-primary btn-full" id="btn-save-profile">
+                    <span class="btn-icon">💾</span> Save Identity
+                </button>
+                <div id="save-status"></div>
+            </div>
+        </div>
+
+        <!-- Activity Timeline -->
+        <div class="glass-card activity-timeline full-width fade-up fade-up-delay-5">
+            <div class="panel-header">
+                <h3><span class="panel-icon">📜</span> Activity Timeline</h3>
+            </div>
+            <div class="timeline-feed" id="timeline-feed">
+                {% if activity_log %}
+                    {% for log in activity_log %}
+                    <div class="timeline-item" style="animation-delay: {{ loop.index0 * 0.08 }}s;">
+                        <div class="timeline-time">{{ log.timestamp }}</div>
+                        <div class="timeline-action">{{ log.action }}</div>
+                        <div class="timeline-details">{{ log.details }}</div>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="timeline-empty">
+                        <div class="timeline-empty-icon">📭</div>
+                        <p>No activity recorded this session.</p>
+                        <p style="margin-top:6px; font-size:11px; color:var(--text-dim);">Head to the <a href="/" style="color:var(--cyan);">main dashboard</a> and run a BB84 simulation.</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="full-width fade-up fade-up-delay-5" style="padding:16px 0 0;">
+            <div class="quick-actions">
+                <a href="/#simulation" class="quick-action-btn"><span class="qa-icon">⚛️</span> Run BB84 Simulation</a>
+                <a href="/#encryption" class="quick-action-btn"><span class="qa-icon">🔐</span> Encrypt a Message</a>
+                <a href="/#eavesdrop" class="quick-action-btn"><span class="qa-icon">🕵️</span> Detect Eavesdropper</a>
+                <a href="/" class="quick-action-btn"><span class="qa-icon">🏠</span> Back to Home</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-brand"><span>⚛️</span> Quantum-Simulated Email Security</div>
+            <div class="footer-disclaimer">Profile data stored in your current browser session only.</div>
+            <div class="footer-tech">BB84 Protocol • AES-256-GCM • HKDF-SHA256 • Python + Flask</div>
+        </div>
+    </footer>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', () => {
+        // ==================== Matrix Rain ====================
+        const mc = document.getElementById('matrix-rain');
+        const mx = mc.getContext('2d');
+        mc.width = window.innerWidth; mc.height = window.innerHeight;
+        const chars = 'QSES01アイウエオカキクケコ⚛⟨ψ⟩∣+⟩∣−⟩';
+        const fontSize = 14;
+        const cols = Math.floor(mc.width / fontSize);
+        const drops = Array(cols).fill(1);
+
+        function drawMatrix() {
+            mx.fillStyle = 'rgba(7,7,14,0.06)';
+            mx.fillRect(0, 0, mc.width, mc.height);
+            mx.fillStyle = '#00e5ff';
+            mx.font = fontSize + 'px JetBrains Mono';
+            for (let i = 0; i < drops.length; i++) {
+                const t = chars[Math.floor(Math.random() * chars.length)];
+                mx.fillText(t, i * fontSize, drops[i] * fontSize);
+                if (drops[i] * fontSize > mc.height && Math.random() > 0.975) drops[i] = 0;
+                drops[i]++;
+            }
+        }
+        setInterval(drawMatrix, 50);
+        window.addEventListener('resize', () => { mc.width = window.innerWidth; mc.height = window.innerHeight; });
+
+        // ==================== Animated Stat Rings ====================
+        const stats = {
+            keys: {{ stats.keys_generated }},
+            qubits: {{ stats.total_qubits_sent }},
+            enc: {{ stats.messages_encrypted }},
+            dec: {{ stats.messages_decrypted }}
+        };
+
+        function animateRing(id, value, max) {
+            const el = document.getElementById(id);
+            if (!el) return;
+            const circumference = 2 * Math.PI * 36;
+            const pct = Math.min(value / max, 1);
+            setTimeout(() => { el.style.strokeDashoffset = circumference * (1 - pct); }, 500);
+        }
+
+        animateRing('ring-keys', stats.keys, Math.max(stats.keys, 10));
+        animateRing('ring-qubits', stats.qubits, Math.max(stats.qubits, 1024));
+        animateRing('ring-enc', stats.enc, Math.max(stats.enc, 10));
+        animateRing('ring-dec', stats.dec, Math.max(stats.dec, 10));
+
+        // ==================== Security Bars ====================
+        setTimeout(() => {
+            document.getElementById('bar-enc-strength').style.width = '100%';
+            document.getElementById('bar-protocol').style.width = '92%';
+            document.getElementById('bar-kdf').style.width = '96%';
+            document.getElementById('bar-auth').style.width = '100%';
+
+            const scoreEl = document.getElementById('security-score');
+            const scoreBar = document.getElementById('security-score-bar');
+            let cur = 0; const target = 97;
+            const si = setInterval(() => { cur++; scoreEl.textContent = cur; if (cur >= target) clearInterval(si); }, 18);
+            scoreBar.style.width = target + '%';
+        }, 700);
+
+        // ==================== Avatar Selection ====================
+        const avatarEmojis = { 'default':'👤','cyber':'🤖','quantum':'⚛️','secure':'🛡️','hacker':'💻','alien':'👽' };
+        let selectedAvatar = "{{ profile.avatar }}";
+        document.querySelectorAll('.avatar-pick-option').forEach(opt => {
+            opt.addEventListener('click', () => {
+                document.querySelectorAll('.avatar-pick-option').forEach(o => o.classList.remove('selected'));
+                opt.classList.add('selected');
+                selectedAvatar = opt.dataset.avatar;
+                document.getElementById('avatar-display').textContent = avatarEmojis[selectedAvatar] || '👤';
+            });
+        });
+
+        // ==================== Save Profile ====================
+        const btnSave = document.getElementById('btn-save-profile');
+        const saveStatus = document.getElementById('save-status');
+        btnSave.addEventListener('click', async () => {
+            const name = document.getElementById('profile-name').value;
+            const handle = document.getElementById('profile-handle').value;
+            const bio = document.getElementById('profile-bio').value;
+            btnSave.disabled = true; btnSave.classList.add('loading');
+            btnSave.innerHTML = '<span class="btn-loader"></span> Encrypting...';
+            try {
+                const res = await fetch('/api/profile/update', {
+                    method:'POST', body: JSON.stringify({name, handle, bio, avatar:selectedAvatar}),
+                    headers: {'Content-Type':'application/json'}
+                });
+                if (res.ok) {
+                    document.getElementById('display-name').textContent = name;
+                    document.getElementById('display-handle').textContent = handle;
+                    document.getElementById('display-bio').textContent = bio;
+                    saveStatus.style.color = '#69f0ae';
+                    saveStatus.textContent = '✓ Identity saved to quantum vault';
+                    setTimeout(() => saveStatus.textContent = '', 4000);
+                }
+            } catch(e) {
+                saveStatus.style.color = '#ff4081';
+                saveStatus.textContent = '✗ Transmission failed — try again';
+            } finally {
+                btnSave.disabled = false; btnSave.classList.remove('loading');
+                btnSave.innerHTML = '<span class="btn-icon">💾</span> Save Identity';
+            }
+        });
+
+        // ==================== Back to Top ====================
+        const btt = document.createElement('div');
+        btt.innerHTML = '↑';
+        Object.assign(btt.style, {
+            position:'fixed', bottom:'28px', right:'28px', width:'44px', height:'44px',
+            backgroundColor:'rgba(0,229,255,0.08)', color:'#fff', borderRadius:'12px',
+            display:'flex', alignItems:'center', justifyContent:'center',
+            cursor:'pointer', fontSize:'18px', zIndex:'100',
+            border:'1px solid rgba(0,229,255,0.15)', backdropFilter:'blur(10px)',
+            transition:'all 0.3s ease', opacity:'0', visibility:'hidden'
+        });
+        document.body.appendChild(btt);
+        window.addEventListener('scroll', () => {
+            btt.style.opacity = window.scrollY > 300 ? '1' : '0';
+            btt.style.visibility = window.scrollY > 300 ? 'visible' : 'hidden';
+        });
+        btt.addEventListener('click', () => window.scrollTo({top:0, behavior:'smooth'}));
+        btt.addEventListener('mouseover', () => { btt.style.backgroundColor='rgba(0,229,255,0.2)'; btt.style.boxShadow='0 0 16px rgba(0,229,255,0.25)'; btt.style.transform='translateY(-2px)'; });
+        btt.addEventListener('mouseout', () => { btt.style.backgroundColor='rgba(0,229,255,0.08)'; btt.style.boxShadow='none'; btt.style.transform='translateY(0)'; });
+    });
+    </script>
+</body>
+</html>

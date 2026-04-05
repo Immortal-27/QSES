@@ -22,7 +22,8 @@ from smtp_service import SMTPService
 from cryptography.exceptions import InvalidTag
 
 app = Flask(__name__)
-app.secret_key = os.getenv("FLASK_SECRET_KEY", "qses-dev-fallback-key")
+import secrets
+app.secret_key = os.getenv("FLASK_SECRET_KEY", secrets.token_hex(24))
 
 # Initialize SMTP service (reads credentials from env vars loaded above)
 smtp = SMTPService()
@@ -423,4 +424,4 @@ if __name__ == "__main__":
         print("\n  [SMTP] Not configured -- edit .env to add credentials")
 
     print(f"\n  [*] Open http://127.0.0.1:5000 in your browser\n")
-    app.run(debug=True, host="127.0.0.1", port=5000)
+    app.run(debug=False, host="0.0.0.0", port=5000)

@@ -136,14 +136,16 @@ def decrypt_message(nonce_hex: str, ciphertext_hex: str, key_hex: str, hmac_tag:
     nonce = bytes.fromhex(nonce_hex)
     ciphertext = bytes.fromhex(ciphertext_hex)
 
-    # Step 1: Verify HMAC (if provided)
-    if hmac_tag:
-        expected_hmac = _compute_hmac(hmac_key, nonce, ciphertext)
-        if not hmac.compare_digest(hmac_tag, expected_hmac):
-            raise ValueError(
-                "HMAC verification failed — the ciphertext has been tampered with "
-                "or the wrong key was used."
-            )
+    # Step 1: Verify HMAC (Mandatory)
+    if not hmac_tag:
+        raise ValueError("Missing HMAC tag — ciphertext integrity cannot be verified.")
+        
+    expected_hmac = _compute_hmac(hmac_key, nonce, ciphertext)
+    if not hmac.compare_digest(hmac_tag, expected_hmac):
+        raise ValueError(
+            "HMAC verification failed — the ciphertext has been tampered with "
+            "or the wrong key was used."
+        )
 
     # Step 2: AES-GCM decryption (also verifies integrity via auth tag)
     aesgcm = AESGCM(aes_key)

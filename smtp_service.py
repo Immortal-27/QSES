@@ -192,13 +192,8 @@ class SMTPService:
             subject: Email subject line
             encrypted_payload: dict with 'ciphertext', 'nonce', 'algorithm', etc.
             original_length: Length of the original plaintext message
-<<<<<<< Updated upstream
             base_url: The QSES app's base URL for the decrypt link
             message_id: Unique ID for this message, used to retrieve the key from session
-=======
-            base_url: The base URL of the app
->>>>>>> Stashed changes
-
         Returns:
             dict with 'success' (bool), 'message' (str), and optional metadata
         """
@@ -224,7 +219,6 @@ class SMTPService:
 
             timestamp = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S UTC")
 
-<<<<<<< Updated upstream
             # Build the decrypt URL with nonce + ciphertext + message ID as query params
             from urllib.parse import urlencode, quote
             params = {
@@ -235,10 +229,6 @@ class SMTPService:
                 params["mid"] = message_id
             decrypt_params = urlencode(params, quote_via=quote)
             decrypt_url = f"{base_url.rstrip('/')}/decrypt?{decrypt_params}"
-=======
-            decrypt_url = f"{base_url.rstrip('/')}/#encryption"
->>>>>>> Stashed changes
-
             # Plain text version (for clients that don't render HTML)
             plain_body = self._build_plain_body(encrypted_payload, timestamp, original_length, decrypt_url)
             msg.attach(MIMEText(plain_body, "plain", "utf-8"))

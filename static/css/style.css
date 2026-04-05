@@ -81,6 +81,14 @@
     border: 1px solid var(--glass-border) !important;
     box-shadow: var(--glass-shadow) !important;
     border-radius: var(--radius-md);
+    transition: border 0.3s ease, box-shadow 0.3s ease !important;
+}
+
+.glass-card:hover, .panel:hover, .stat-card:hover, .qubit-table-wrapper:hover, .sim-controls:hover, 
+.security-metric:hover, .security-score-container:hover, .profile-card:hover, .feature-card:hover, 
+.hud-panel:hover, .info-box:hover, .auth-container:hover, .nav-profile-dropdown:hover, 
+.crypto-panel:hover, .tool-panel:hover, .card:hover {
+    border: 1px solid rgba(0, 229, 255, 0.5) !important;
 }
 
 /* ---------- Reset & Base ---------- */
@@ -168,6 +176,7 @@ h1, h2, h3, .hero-title, .section-title, .nav-title, .table-title, .panel-header
     display: flex;
     align-items: center;
     gap: 10px;
+    user-select: none;
 }
 .nav-icon { font-size: 24px; }
 .nav-title {
@@ -596,7 +605,7 @@ h1, h2, h3, .hero-title, .section-title, .nav-title, .table-title, .panel-header
     color: var(--text-primary);
     padding: 14px 22px;
     border-radius: var(--radius-md);
-    border: 1px solid rgba(255, 215, 64, 0.2);
+    border: 1px solid rgba(255, 215 , 64, 0.2);
     background: rgba(255, 215, 64, 0.08); /* light yellow tint */
     backdrop-filter: blur(16px);
     -webkit-backdrop-filter: blur(16px);

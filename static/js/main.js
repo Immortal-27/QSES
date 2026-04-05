@@ -120,6 +120,96 @@ class QuantumParticles {
 }
 
 // ============================================================
+// PillNav GSAP Animation
+// ============================================================
+function initPillNav() {
+    if (typeof gsap === 'undefined') return;
+    
+    // We get all .pill elements
+    const pills = document.querySelectorAll('.pill');
+    if (!pills.length) return;
+    
+    const tlRefs = [];
+    const activeTweenRefs = [];
+    const ease = 'power3.easeOut';
+
+    const layout = () => {
+        pills.forEach((pill, index) => {
+            const circle = pill.querySelector('.hover-circle');
+            const label = pill.querySelector('.pill-label');
+            const hoverLabel = pill.querySelector('.pill-label-hover');
+            
+            if (!circle) return;
+
+            const rect = pill.getBoundingClientRect();
+            const w = rect.width;
+            const h = rect.height;
+            
+            // MATH from react component for perfect bottom-origin ripple
+            const R = ((w * w) / 4 + h * h) / (2 * h);
+            const D = Math.ceil(2 * R) + 2;
+            const delta = Math.ceil(R - Math.sqrt(Math.max(0, R * R - (w * w) / 4))) + 1;
+            const originY = D - delta;
+
+            circle.style.width = `${D}px`;
+            circle.style.height = `${D}px`;
+            circle.style.bottom = `-${delta}px`;
+
+            gsap.set(circle, {
+                xPercent: -50,
+                scale: 0,
+                transformOrigin: `50% ${originY}px`
+            });
+
+            if (label) gsap.set(label, { y: 0 });
+            if (hoverLabel) gsap.set(hoverLabel, { y: h + 12, opacity: 0 });
+
+            if (tlRefs[index]) tlRefs[index].kill();
+            
+            const tl = gsap.timeline({ paused: true });
+
+            // Using ease: 'none' to prevent double-easing when we play it via tweenTo()
+            tl.to(circle, { scale: 1.2, xPercent: -50, duration: 1, ease: 'none', overwrite: 'auto' }, 0);
+
+            if (label) tl.to(label, { y: -(h + 8), duration: 1, ease: 'none', overwrite: 'auto' }, 0);
+
+            if (hoverLabel) tl.to(hoverLabel, { y: 0, opacity: 1, duration: 1, ease: 'none', overwrite: 'auto' }, 0);
+
+            tlRefs[index] = tl;
+        });
+    };
+
+    layout();
+    
+    // Re-layout on resize
+    window.addEventListener('resize', layout);
+    if (document.fonts?.ready) {
+        document.fonts.ready.then(layout).catch(() => {});
+    }
+
+    // Attach event listeners
+    const smoothEase = 'power3.out';
+    const enterDur = 0.55;
+    const leaveDur = 0.45;
+
+    pills.forEach((pill, index) => {
+        pill.addEventListener('mouseenter', () => {
+            const tl = tlRefs[index];
+            if (!tl) return;
+            if (activeTweenRefs[index]) activeTweenRefs[index].kill();
+            activeTweenRefs[index] = tl.tweenTo(tl.duration(), { duration: enterDur, ease: smoothEase, overwrite: 'auto' });
+        });
+        
+        pill.addEventListener('mouseleave', () => {
+            const tl = tlRefs[index];
+            if (!tl) return;
+            if (activeTweenRefs[index]) activeTweenRefs[index].kill();
+            activeTweenRefs[index] = tl.tweenTo(0, { duration: leaveDur, ease: smoothEase, overwrite: 'auto' });
+        });
+    });
+}
+
+// ============================================================
 // App State
 // ============================================================
 const state = {
@@ -134,6 +224,9 @@ const state = {
 // DOM Ready
 // ============================================================
 document.addEventListener('DOMContentLoaded', () => {
+    // Init PillNav animations
+    initPillNav();
+
     // Init quantum canvas
     const canvas = document.getElementById('quantum-canvas');
     if (canvas) new QuantumParticles(canvas);

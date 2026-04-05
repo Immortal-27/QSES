@@ -192,8 +192,12 @@ class SMTPService:
             subject: Email subject line
             encrypted_payload: dict with 'ciphertext', 'nonce', 'algorithm', etc.
             original_length: Length of the original plaintext message
+<<<<<<< Updated upstream
             base_url: The QSES app's base URL for the decrypt link
             message_id: Unique ID for this message, used to retrieve the key from session
+=======
+            base_url: The base URL of the app
+>>>>>>> Stashed changes
 
         Returns:
             dict with 'success' (bool), 'message' (str), and optional metadata
@@ -220,6 +224,7 @@ class SMTPService:
 
             timestamp = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S UTC")
 
+<<<<<<< Updated upstream
             # Build the decrypt URL with nonce + ciphertext + message ID as query params
             from urllib.parse import urlencode, quote
             params = {
@@ -230,6 +235,9 @@ class SMTPService:
                 params["mid"] = message_id
             decrypt_params = urlencode(params, quote_via=quote)
             decrypt_url = f"{base_url.rstrip('/')}/decrypt?{decrypt_params}"
+=======
+            decrypt_url = f"{base_url.rstrip('/')}/#encryption"
+>>>>>>> Stashed changes
 
             # Plain text version (for clients that don't render HTML)
             plain_body = self._build_plain_body(encrypted_payload, timestamp, original_length, decrypt_url)
@@ -295,7 +303,7 @@ class SMTPService:
     @staticmethod
     def _build_plain_body(payload: dict, timestamp: str, original_length: int, decrypt_url: str = "") -> str:
         """Build a plain-text email body with the encrypted payload."""
-        body = (
+        return (
             "═══════════════════════════════════════════════════\n"
             "  QUANTUM-SIMULATED ENCRYPTED MESSAGE (QSES)\n"
             "═══════════════════════════════════════════════════\n\n"
@@ -316,16 +324,15 @@ class SMTPService:
             "1. The shared quantum-derived key (AES-256 hex)\n"
             "2. The nonce, ciphertext, and HMAC tag above\n"
             "3. The QSES decryption tool\n\n"
+            f"\nDECRYPT URL: {decrypt_url}\n\n"
             "DISCLAIMER: This is a classical simulation of quantum\n"
             "key distribution — not real QKD hardware.\n"
         )
-        return body
 
     @staticmethod
     def _build_html_body(payload: dict, timestamp: str, original_length: int, subject: str, decrypt_url: str = "") -> str:
-        """Build a styled HTML email body with the encrypted payload and decrypt button."""
+        """Build a styled HTML email body with the encrypted payload."""
 
-        # Build the decrypt button HTML (only if URL provided)
         decrypt_button_html = ""
         if decrypt_url:
             decrypt_button_html = f"""
@@ -374,17 +381,17 @@ class SMTPService:
 
     <p style="margin:0 0 4px;font-size:10px;color:#5c6bc0;text-transform:uppercase;letter-spacing:1px;">Nonce (Hex)</p>
     <div style="padding:10px 14px;background:rgba(0,0,0,0.4);border-radius:8px;border:1px solid rgba(99,110,180,0.15);margin-bottom:14px;">
-      <code style="font-family:'Courier New',monospace;font-size:12px;color:#00e5ff;word-break:break-all;">{payload.get('nonce', 'N/A')}</code>
+      <a style="text-decoration:none;cursor:text;pointer-events:none;"><code style="font-family:'Courier New',monospace;font-size:12px;color:#00e5ff;word-break:break-all;">{payload.get('nonce', 'N/A')}</code></a>
     </div>
 
     <p style="margin:0 0 4px;font-size:10px;color:#5c6bc0;text-transform:uppercase;letter-spacing:1px;">Ciphertext (Hex)</p>
     <div style="padding:10px 14px;background:rgba(0,0,0,0.4);border-radius:8px;border:1px solid rgba(99,110,180,0.15);margin-bottom:14px;">
-      <code style="font-family:'Courier New',monospace;font-size:12px;color:#b388ff;word-break:break-all;">{payload.get('ciphertext', 'N/A')}</code>
+      <a style="text-decoration:none;cursor:text;pointer-events:none;"><code style="font-family:'Courier New',monospace;font-size:12px;color:#b388ff;word-break:break-all;">{payload.get('ciphertext', 'N/A')}</code></a>
     </div>
 
     <p style="margin:0 0 4px;font-size:10px;color:#5c6bc0;text-transform:uppercase;letter-spacing:1px;">HMAC-SHA256 Tag</p>
     <div style="padding:10px 14px;background:rgba(0,0,0,0.4);border-radius:8px;border:1px solid rgba(99,110,180,0.15);">
-      <code style="font-family:'Courier New',monospace;font-size:12px;color:#ff9100;word-break:break-all;">{payload.get('hmac', 'N/A')}</code>
+      <a style="text-decoration:none;cursor:text;pointer-events:none;"><code style="font-family:'Courier New',monospace;font-size:12px;color:#ff9100;word-break:break-all;">{payload.get('hmac', 'N/A')}</code></a>
     </div>
   </div>
 

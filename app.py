@@ -349,6 +349,7 @@ def smtp_send():
         # Step 1: Encrypt the message
         encrypted_payload = encrypt_message(message, key_hex)
 
+<<<<<<< Updated upstream
         # Step 2: Generate a unique message ID and store the key in the session
         message_id = uuid.uuid4().hex[:12]
         if "decrypt_keys" not in session:
@@ -357,6 +358,9 @@ def smtp_send():
         session.modified = True
 
         # Step 3: Determine base URL for the decrypt link in the email
+=======
+        # Step 2: Determine base URL to link back to the app
+>>>>>>> Stashed changes
         base_url = request.url_root.rstrip("/")
 
         # Step 4: Send via SMTP (pass message_id so it's included in the decrypt URL)

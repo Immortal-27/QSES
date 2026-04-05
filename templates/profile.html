@@ -7,7 +7,7 @@
     <title>QSES — Agent Profile Dashboard</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&family=Orbitron:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Rethink+Sans:ital,wght@0,400..800;1,400..800&family=JetBrains+Mono:wght@400;500;600;700&family=Orbitron:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/static/css/style.css">
     <style>
         /* ============================================================
@@ -18,9 +18,6 @@
         .security-score-value, .hud-label, .hud-big-num {
             font-family: 'Orbitron', var(--font-mono);
         }
-
-        /* --- Matrix Rain Canvas --- */
-        #matrix-rain { position: fixed; inset: 0; z-index: 0; pointer-events: none; opacity: 0.06; }
 
         /* --- Scanline --- */
         .scanline-overlay {
@@ -84,8 +81,10 @@
             position: relative; display: inline-flex; flex-direction: column; align-items: center;
             padding: 36px 50px 32px; border-radius: var(--radius-xl);
             background: linear-gradient(135deg, rgba(0,229,255,0.03), rgba(179,136,255,0.03));
-            border: 1px solid rgba(0,229,255,0.1); backdrop-filter: blur(30px);
-            animation: holoShimmer 6s ease-in-out infinite; overflow: hidden;
+            border: 1px solid rgba(0,229,255,0.1); backdrop-filter: blur(16px);
+            overflow: hidden;
+            box-shadow: 0 0 40px rgba(0,229,255,0.06), inset 0 0 40px rgba(0,229,255,0.03);
+            transform: translateZ(0); /* force hardware acceleration */
         }
         .holo-avatar-card::before {
             content: ''; position: absolute; top:-50%; left:-50%; width:200%; height:200%;
@@ -93,10 +92,6 @@
             animation: holoRotate 8s linear infinite;
         }
         @keyframes holoRotate { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
-        @keyframes holoShimmer {
-            0%,100% { box-shadow: 0 0 30px rgba(0,229,255,0.04), inset 0 0 30px rgba(0,229,255,0.02); }
-            50% { box-shadow: 0 0 50px rgba(0,229,255,0.08), inset 0 0 50px rgba(179,136,255,0.04); }
-        }
 
         .avatar-ring {
             position: relative; z-index: 2; width: 100px; height: 100px; border-radius: 50%;
@@ -136,34 +131,7 @@
         }
         .profile-dashboard .full-width { grid-column: 1 / -1; }
 
-        /* --- HUD Stat Cards (top row) --- */
-        .hud-stat-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
-        .hud-stat-card {
-            position: relative; text-align: center; padding: 24px 12px 20px;
-            background: rgba(7,7,14,0.6); border: 1px solid rgba(0,229,255,0.08);
-            border-radius: var(--radius-lg); backdrop-filter: blur(20px);
-            transition: all 0.35s ease; overflow: hidden;
-        }
-        .hud-stat-card::before {
-            content:''; position:absolute; top:0; left:0; right:0; height:2px;
-            background: linear-gradient(90deg, transparent, var(--cyan), transparent);
-            opacity: 0; transition: opacity 0.3s ease;
-        }
-        .hud-stat-card:hover::before { opacity: 1; }
-        .hud-stat-card:hover { border-color: rgba(0,229,255,0.2); transform: translateY(-4px); box-shadow: 0 12px 40px rgba(0,0,0,0.4), 0 0 20px rgba(0,229,255,0.05); }
 
-        .hud-stat-icon { font-size: 22px; margin-bottom: 8px; }
-        .ring-container { position:relative; width:80px; height:80px; margin:0 auto 10px; }
-        .ring-svg { width:100%; height:100%; transform:rotate(-90deg); }
-        .ring-bg { fill:none; stroke:rgba(99,110,180,0.08); stroke-width:4; }
-        .ring-fill { fill:none; stroke-width:4; stroke-linecap:round; stroke-dasharray:226; stroke-dashoffset:226; transition: stroke-dashoffset 2s cubic-bezier(0.4,0,0.2,1); filter:drop-shadow(0 0 5px currentColor); }
-        .ring-fill.cyan { stroke:var(--cyan); color:var(--cyan); }
-        .ring-fill.purple { stroke:var(--purple); color:var(--purple); }
-        .ring-fill.green { stroke:var(--green); color:var(--green); }
-        .ring-fill.pink { stroke:var(--pink); color:var(--pink); }
-
-        .ring-value { position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); font-size:20px; font-weight:800; color:var(--text-primary); }
-        .hud-label { font-size:9px; font-weight:600; color:var(--text-dim); text-transform:uppercase; letter-spacing:1.5px; }
 
         /* --- Security Panel --- */
         .security-panel { padding: 26px; }
@@ -215,26 +183,7 @@
         .save-btn-wrapper { margin-top: 18px; }
         #save-status { margin-top:10px; text-align:center; font-size:12px; font-weight:600; height:1.4em; transition:all 0.3s ease; }
 
-        /* --- Activity Timeline --- */
-        .activity-timeline { padding:26px; max-height:540px; overflow:hidden; display:flex; flex-direction:column; }
-        .timeline-feed { flex:1; overflow-y:auto; padding-right:6px; }
-        .timeline-item {
-            position:relative; padding:14px 14px 14px 34px; margin-bottom:10px;
-            border-radius:var(--radius-md); background:rgba(0,0,0,0.12);
-            border:1px solid rgba(99,110,180,0.06); transition:all 0.3s ease;
-            animation:timelineSlideIn 0.5s ease forwards; opacity:0; transform:translateX(-10px);
-        }
-        .timeline-item:hover { border-color:rgba(0,229,255,0.1); background:rgba(0,0,0,0.22); }
-        @keyframes timelineSlideIn { to { opacity:1; transform:translateX(0); } }
-        .timeline-item::before { content:''; position:absolute; left:12px; top:20px; width:7px; height:7px; border-radius:50%; background:var(--cyan); box-shadow:0 0 6px var(--cyan-glow); }
-        .timeline-item::after { content:''; position:absolute; left:14.5px; top:31px; width:2px; height:calc(100% - 10px); background:rgba(0,229,255,0.06); }
-        .timeline-item:last-child::after { display:none; }
-        .timeline-time { font-family:var(--font-mono); font-size:9px; color:var(--text-dim); margin-bottom:3px; letter-spacing:0.5px; }
-        .timeline-action { font-size:13px; font-weight:700; color:var(--text-primary); margin-bottom:2px; }
-        .timeline-details { font-size:11px; color:var(--text-secondary); line-height:1.5; }
-        .timeline-empty { text-align:center; padding:40px 20px; color:var(--text-dim); }
-        .timeline-empty-icon { font-size:40px; margin-bottom:12px; opacity:0.25; }
-        .timeline-empty p { font-size:13px; }
+
 
         /* --- Quick Actions --- */
         .quick-actions { display:flex; gap:12px; justify-content:center; flex-wrap:wrap; }
@@ -275,7 +224,6 @@
 </head>
 <body>
     <div class="hex-grid-bg"></div>
-    <canvas id="matrix-rain"></canvas>
     <iframe id="chain-bg" src="/static/chainbg/index.html" frameborder="0" allowtransparency="true"></iframe>
     <div class="scanline-overlay"></div>
 
@@ -286,11 +234,35 @@
             <span class="nav-title">QSES</span>
             <span class="nav-badge">PROFILE</span>
         </div>
-        <div class="nav-links">
-            <a href="/" class="nav-link">🏠 Home</a>
-            <a href="/#simulation" class="nav-link">🔬 BB84</a>
-            <a href="/#encryption" class="nav-link">🔐 Encrypt</a>
-            <a href="/profile" class="nav-link active">👤 Profile</a>
+        <div class="nav-links pill-nav-items">
+            <a href="/" class="nav-link pill">
+                <span class="hover-circle"></span>
+                <span class="label-stack">
+                    <span class="pill-label">🏠 Home</span>
+                    <span class="pill-label-hover" aria-hidden="true">🏠 Home</span>
+                </span>
+            </a>
+            <a href="/#simulation" class="nav-link pill">
+                <span class="hover-circle"></span>
+                <span class="label-stack">
+                    <span class="pill-label">🔬 BB84</span>
+                    <span class="pill-label-hover" aria-hidden="true">🔬 BB84</span>
+                </span>
+            </a>
+            <a href="/#encryption" class="nav-link pill">
+                <span class="hover-circle"></span>
+                <span class="label-stack">
+                    <span class="pill-label">🔐 Encrypt</span>
+                    <span class="pill-label-hover" aria-hidden="true">🔐 Encrypt</span>
+                </span>
+            </a>
+            <a href="/profile" class="nav-link pill active">
+                <span class="hover-circle"></span>
+                <span class="label-stack">
+                    <span class="pill-label">👤 Profile</span>
+                    <span class="pill-label-hover" aria-hidden="true">👤 Profile</span>
+                </span>
+            </a>
         </div>
     </nav>
 
@@ -309,8 +281,13 @@
         </p>
 
         <div class="holo-avatar-card fade-up fade-up-delay-3" id="holo-card">
-            <div class="avatar-ring" id="avatar-display">
-                {% if profile.avatar == 'cyber' %}🤖{% elif profile.avatar == 'quantum' %}⚛️{% elif profile.avatar == 'secure' %}🛡️{% elif profile.avatar == 'hacker' %}💻{% elif profile.avatar == 'alien' %}👽{% else %}👤{% endif %}
+            <div class="avatar-ring" id="avatar-display" style="color: var(--cyan);">
+                {% if profile.avatar == 'cyber' %}<svg viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="10" rx="2"/><circle cx="12" cy="5" r="2"/><path d="M12 7v4"/><circle cx="8" cy="16" r="1" fill="currentColor"/><circle cx="16" cy="16" r="1" fill="currentColor"/></svg>
+                {% elif profile.avatar == 'quantum' %}<svg viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><ellipse cx="12" cy="12" rx="10" ry="4" transform="rotate(45 12 12)"/><ellipse cx="12" cy="12" rx="10" ry="4" transform="rotate(-45 12 12)"/></svg>
+                {% elif profile.avatar == 'secure' %}<svg viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M9 12a3 3 0 1 1 6 0v2H9v-2z"/></svg>
+                {% elif profile.avatar == 'hacker' %}<svg viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/></svg>
+                {% elif profile.avatar == 'alien' %}<svg viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a7 7 0 0 0-7 7c0 5 4.5 13 7 13s7-8 7-13a7 7 0 0 0-7-7z"/><path d="M9 13v-1a2 2 0 1 0-4 0v1"/><path d="M15 13v-1a2 2 0 1 1 4 0v1"/><path d="M12 18v.01"/></svg>
+                {% else %}<svg viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>{% endif %}
             </div>
             <div class="avatar-name" id="display-name">{{ profile.name }}</div>
             <div class="avatar-handle" id="display-handle">{{ profile.handle }}</div>
@@ -327,55 +304,7 @@
     <!-- ====== Dashboard ====== -->
     <section class="profile-dashboard" style="padding-top:36px;">
 
-        <!-- HUD Stat Cards -->
-        <div class="full-width fade-up fade-up-delay-3">
-            <div class="hud-stat-row">
-                <div class="hud-stat-card">
-                    <div class="hud-stat-icon">🔑</div>
-                    <div class="ring-container">
-                        <svg class="ring-svg" viewBox="0 0 80 80">
-                            <circle class="ring-bg" cx="40" cy="40" r="36"/>
-                            <circle class="ring-fill cyan" cx="40" cy="40" r="36" id="ring-keys"/>
-                        </svg>
-                        <div class="ring-value" id="val-keys">{{ stats.keys_generated }}</div>
-                    </div>
-                    <div class="hud-label">Keys Generated</div>
-                </div>
-                <div class="hud-stat-card">
-                    <div class="hud-stat-icon">📡</div>
-                    <div class="ring-container">
-                        <svg class="ring-svg" viewBox="0 0 80 80">
-                            <circle class="ring-bg" cx="40" cy="40" r="36"/>
-                            <circle class="ring-fill purple" cx="40" cy="40" r="36" id="ring-qubits"/>
-                        </svg>
-                        <div class="ring-value" id="val-qubits">{{ stats.total_qubits_sent }}</div>
-                    </div>
-                    <div class="hud-label">Qubits Sent</div>
-                </div>
-                <div class="hud-stat-card">
-                    <div class="hud-stat-icon">🔒</div>
-                    <div class="ring-container">
-                        <svg class="ring-svg" viewBox="0 0 80 80">
-                            <circle class="ring-bg" cx="40" cy="40" r="36"/>
-                            <circle class="ring-fill green" cx="40" cy="40" r="36" id="ring-enc"/>
-                        </svg>
-                        <div class="ring-value" id="val-enc">{{ stats.messages_encrypted }}</div>
-                    </div>
-                    <div class="hud-label">Tx Encrypted</div>
-                </div>
-                <div class="hud-stat-card">
-                    <div class="hud-stat-icon">🔓</div>
-                    <div class="ring-container">
-                        <svg class="ring-svg" viewBox="0 0 80 80">
-                            <circle class="ring-bg" cx="40" cy="40" r="36"/>
-                            <circle class="ring-fill pink" cx="40" cy="40" r="36" id="ring-dec"/>
-                        </svg>
-                        <div class="ring-value" id="val-dec">{{ stats.messages_decrypted }}</div>
-                    </div>
-                    <div class="hud-label">Rx Decrypted</div>
-                </div>
-            </div>
-        </div>
+
 
         <!-- Security Dashboard -->
         <div class="glass-card security-panel fade-up fade-up-delay-4">
@@ -418,13 +347,13 @@
             </div>
             <div class="form-group">
                 <label class="form-label">Avatar</label>
-                <div class="avatar-picker" id="avatar-picker">
-                    <div class="avatar-pick-option {% if profile.avatar == 'default' %}selected{% endif %}" data-avatar="default">👤</div>
-                    <div class="avatar-pick-option {% if profile.avatar == 'cyber' %}selected{% endif %}" data-avatar="cyber">🤖</div>
-                    <div class="avatar-pick-option {% if profile.avatar == 'quantum' %}selected{% endif %}" data-avatar="quantum">⚛️</div>
-                    <div class="avatar-pick-option {% if profile.avatar == 'secure' %}selected{% endif %}" data-avatar="secure">🛡️</div>
-                    <div class="avatar-pick-option {% if profile.avatar == 'hacker' %}selected{% endif %}" data-avatar="hacker">💻</div>
-                    <div class="avatar-pick-option {% if profile.avatar == 'alien' %}selected{% endif %}" data-avatar="alien">👽</div>
+                <div class="avatar-picker" id="avatar-picker" style="color: var(--cyan);">
+                    <div class="avatar-pick-option {% if profile.avatar == 'default' %}selected{% endif %}" data-avatar="default"><svg viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>
+                    <div class="avatar-pick-option {% if profile.avatar == 'cyber' %}selected{% endif %}" data-avatar="cyber"><svg viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="10" rx="2"/><circle cx="12" cy="5" r="2"/><path d="M12 7v4"/><circle cx="8" cy="16" r="1" fill="currentColor"/><circle cx="16" cy="16" r="1" fill="currentColor"/></svg></div>
+                    <div class="avatar-pick-option {% if profile.avatar == 'quantum' %}selected{% endif %}" data-avatar="quantum"><svg viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><ellipse cx="12" cy="12" rx="10" ry="4" transform="rotate(45 12 12)"/><ellipse cx="12" cy="12" rx="10" ry="4" transform="rotate(-45 12 12)"/></svg></div>
+                    <div class="avatar-pick-option {% if profile.avatar == 'secure' %}selected{% endif %}" data-avatar="secure"><svg viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M9 12a3 3 0 1 1 6 0v2H9v-2z"/></svg></div>
+                    <div class="avatar-pick-option {% if profile.avatar == 'hacker' %}selected{% endif %}" data-avatar="hacker"><svg viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/></svg></div>
+                    <div class="avatar-pick-option {% if profile.avatar == 'alien' %}selected{% endif %}" data-avatar="alien"><svg viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a7 7 0 0 0-7 7c0 5 4.5 13 7 13s7-8 7-13a7 7 0 0 0-7-7z"/><path d="M9 13v-1a2 2 0 1 0-4 0v1"/><path d="M15 13v-1a2 2 0 1 1 4 0v1"/><path d="M12 18v.01"/></svg></div>
                 </div>
             </div>
             <div class="form-group">
@@ -447,29 +376,7 @@
             </div>
         </div>
 
-        <!-- Activity Timeline -->
-        <div class="glass-card activity-timeline full-width fade-up fade-up-delay-5">
-            <div class="panel-header">
-                <h3><span class="panel-icon">📜</span> Activity Timeline</h3>
-            </div>
-            <div class="timeline-feed" id="timeline-feed">
-                {% if activity_log %}
-                    {% for log in activity_log %}
-                    <div class="timeline-item" style="animation-delay: {{ loop.index0 * 0.08 }}s;">
-                        <div class="timeline-time">{{ log.timestamp }}</div>
-                        <div class="timeline-action">{{ log.action }}</div>
-                        <div class="timeline-details">{{ log.details }}</div>
-                    </div>
-                    {% endfor %}
-                {% else %}
-                    <div class="timeline-empty">
-                        <div class="timeline-empty-icon">📭</div>
-                        <p>No activity recorded this session.</p>
-                        <p style="margin-top:6px; font-size:11px; color:var(--text-dim);">Head to the <a href="/" style="color:var(--cyan);">main dashboard</a> and run a BB84 simulation.</p>
-                    </div>
-                {% endif %}
-            </div>
-        </div>
+
 
         <!-- Quick Actions -->
         <div class="full-width fade-up fade-up-delay-5" style="padding:16px 0 0;">
@@ -491,53 +398,10 @@
         </div>
     </footer>
 
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="/static/js/main.js"></script>
     <script>
     document.addEventListener('DOMContentLoaded', () => {
-        // ==================== Matrix Rain ====================
-        const mc = document.getElementById('matrix-rain');
-        const mx = mc.getContext('2d');
-        mc.width = window.innerWidth; mc.height = window.innerHeight;
-        const chars = 'QSES01アイウエオカキクケコ⚛⟨ψ⟩∣+⟩∣−⟩';
-        const fontSize = 14;
-        const cols = Math.floor(mc.width / fontSize);
-        const drops = Array(cols).fill(1);
-
-        function drawMatrix() {
-            mx.fillStyle = 'rgba(7,7,14,0.06)';
-            mx.fillRect(0, 0, mc.width, mc.height);
-            mx.fillStyle = '#00e5ff';
-            mx.font = fontSize + 'px JetBrains Mono';
-            for (let i = 0; i < drops.length; i++) {
-                const t = chars[Math.floor(Math.random() * chars.length)];
-                mx.fillText(t, i * fontSize, drops[i] * fontSize);
-                if (drops[i] * fontSize > mc.height && Math.random() > 0.975) drops[i] = 0;
-                drops[i]++;
-            }
-        }
-        setInterval(drawMatrix, 50);
-        window.addEventListener('resize', () => { mc.width = window.innerWidth; mc.height = window.innerHeight; });
-
-        // ==================== Animated Stat Rings ====================
-        const stats = {
-            keys: {{ stats.keys_generated }},
-            qubits: {{ stats.total_qubits_sent }},
-            enc: {{ stats.messages_encrypted }},
-            dec: {{ stats.messages_decrypted }}
-        };
-
-        function animateRing(id, value, max) {
-            const el = document.getElementById(id);
-            if (!el) return;
-            const circumference = 2 * Math.PI * 36;
-            const pct = Math.min(value / max, 1);
-            setTimeout(() => { el.style.strokeDashoffset = circumference * (1 - pct); }, 500);
-        }
-
-        animateRing('ring-keys', stats.keys, Math.max(stats.keys, 10));
-        animateRing('ring-qubits', stats.qubits, Math.max(stats.qubits, 1024));
-        animateRing('ring-enc', stats.enc, Math.max(stats.enc, 10));
-        animateRing('ring-dec', stats.dec, Math.max(stats.dec, 10));
-
         // ==================== Security Bars ====================
         setTimeout(() => {
             document.getElementById('bar-enc-strength').style.width = '100%';
@@ -553,14 +417,21 @@
         }, 700);
 
         // ==================== Avatar Selection ====================
-        const avatarEmojis = { 'default':'👤','cyber':'🤖','quantum':'⚛️','secure':'🛡️','hacker':'💻','alien':'👽' };
+        const avatarSVGs = {
+            'default': '<svg viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>',
+            'cyber': '<svg viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="10" rx="2"/><circle cx="12" cy="5" r="2"/><path d="M12 7v4"/><circle cx="8" cy="16" r="1" fill="currentColor"/><circle cx="16" cy="16" r="1" fill="currentColor"/></svg>',
+            'quantum': '<svg viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><ellipse cx="12" cy="12" rx="10" ry="4" transform="rotate(45 12 12)"/><ellipse cx="12" cy="12" rx="10" ry="4" transform="rotate(-45 12 12)"/></svg>',
+            'secure': '<svg viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M9 12a3 3 0 1 1 6 0v2H9v-2z"/></svg>',
+            'hacker': '<svg viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/></svg>',
+            'alien': '<svg viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a7 7 0 0 0-7 7c0 5 4.5 13 7 13s7-8 7-13a7 7 0 0 0-7-7z"/><path d="M9 13v-1a2 2 0 1 0-4 0v1"/><path d="M15 13v-1a2 2 0 1 1 4 0v1"/><path d="M12 18v.01"/></svg>'
+        };
         let selectedAvatar = "{{ profile.avatar }}";
         document.querySelectorAll('.avatar-pick-option').forEach(opt => {
             opt.addEventListener('click', () => {
                 document.querySelectorAll('.avatar-pick-option').forEach(o => o.classList.remove('selected'));
                 opt.classList.add('selected');
                 selectedAvatar = opt.dataset.avatar;
-                document.getElementById('avatar-display').textContent = avatarEmojis[selectedAvatar] || '👤';
+                document.getElementById('avatar-display').innerHTML = avatarSVGs[selectedAvatar] || avatarSVGs['default'];
             });
         });
 

@@ -177,7 +177,7 @@ def full_bb84_exchange(n_qubits: int = 256,
         "step": 1,
         "title": "Alice Prepares Qubits",
         "description": f"Alice generates {n_qubits} random bits and encodes each in a randomly chosen basis (+ or ×).",
-        "detail": f"First 16 bits: {alice_bits[:16]}, bases: {alice_bases[:16]}"
+        "detail": f"<span style='color:var(--text-dim);text-transform:uppercase;font-size:0.9em;letter-spacing:1px;'>First 16 bits:</span> <span style='font-family:var(--font-mono);color:var(--cyan);font-weight:700;'>{alice_bits[:16]}</span><br><span style='color:var(--text-dim);text-transform:uppercase;font-size:0.9em;letter-spacing:1px;'>Bases:</span> <span style='font-family:var(--font-mono);color:var(--purple);font-weight:700;'>{alice_bases[:16]}</span>"
     })
 
     # Step 2: Quantum transmission (with possible eavesdropping)
@@ -195,7 +195,7 @@ def full_bb84_exchange(n_qubits: int = 256,
             "description": "Eve measures each qubit with a random basis, collapsing the quantum state. "
                           "She re-sends her measured values to Bob. ~50% of the time she uses the wrong basis, "
                           "introducing undetectable-to-her errors.",
-            "detail": f"Eve's bases: {eve_bases[:16]}"
+            "detail": f"<span style='color:var(--red);text-transform:uppercase;font-size:0.9em;letter-spacing:1px;'>Eve's Bases:</span> <span style='font-family:var(--font-mono);color:var(--red);font-weight:700;'>{eve_bases[:16]}</span>"
         })
     else:
         steps.append({
@@ -203,7 +203,7 @@ def full_bb84_exchange(n_qubits: int = 256,
             "title": "Quantum Channel Transmission",
             "description": "Alice sends qubits to Bob through the quantum channel. "
                           "No eavesdropper is present — qubits arrive undisturbed.",
-            "detail": "Channel is secure"
+            "detail": "<span style='color:var(--green);font-weight:700;letter-spacing:2px;text-transform:uppercase;'>Channel is secure</span>"
         })
 
     # Step 3: Bob measures
@@ -222,7 +222,7 @@ def full_bb84_exchange(n_qubits: int = 256,
         "step": 3,
         "title": "Bob Measures Qubits",
         "description": f"Bob independently chooses random bases and measures each qubit.",
-        "detail": f"Bob's bases: {bob_bases[:16]}, measured: {bob_measured_bits[:16]}"
+        "detail": f"<span style='color:var(--text-dim);text-transform:uppercase;font-size:0.9em;letter-spacing:1px;'>Bob's Bases:</span> <span style='font-family:var(--font-mono);color:var(--purple);font-weight:700;'>{bob_bases[:16]}</span><br><span style='color:var(--text-dim);text-transform:uppercase;font-size:0.9em;letter-spacing:1px;'>Measured:</span> <span style='font-family:var(--font-mono);color:var(--cyan);font-weight:700;'>{bob_measured_bits[:16]}</span>"
     })
 
     # Step 4: Basis reconciliation (public classical channel)
@@ -235,7 +235,7 @@ def full_bb84_exchange(n_qubits: int = 256,
         "description": f"Alice and Bob publicly compare bases (not values). "
                       f"They keep {len(matching_indices)} bits where bases matched "
                       f"({len(matching_indices)*100//n_qubits}% of transmitted qubits).",
-        "detail": f"Matching indices (first 16): {matching_indices[:16]}"
+        "detail": f"<span style='color:var(--text-dim);text-transform:uppercase;font-size:0.9em;letter-spacing:1px;'>Matching Indices (First 16):</span> <span style='font-family:var(--font-mono);color:var(--green);font-weight:700;'>{matching_indices[:16]}</span>"
     })
 
     # Step 5: Error rate estimation
@@ -253,13 +253,15 @@ def full_bb84_exchange(n_qubits: int = 256,
     # Security threshold: 11% QBER
     channel_secure = error_rate < 0.11
 
+    err_count = sum(1 for a, b in zip(sample_alice, sample_bob) if a != b)
+    err_color = "var(--green)" if channel_secure else "var(--red)"
     steps.append({
         "step": 5,
         "title": "Error Rate Estimation (Eavesdropping Detection)",
         "description": f"Alice and Bob sacrifice {len(sample_indices)} bits to estimate the error rate. "
                       f"QBER = {error_rate*100:.1f}%. "
                       f"{'✅ Below 11% threshold — channel is SECURE.' if channel_secure else '🚨 Above 11% threshold — EAVESDROPPER DETECTED!'}",
-        "detail": f"Errors: {sum(1 for a, b in zip(sample_alice, sample_bob) if a != b)}/{len(sample_indices)}"
+        "detail": f"<span style='color:var(--text-dim);text-transform:uppercase;font-size:0.9em;letter-spacing:1px;'>Errors:</span> <span style='font-family:var(--font-mono);color:{err_color};font-weight:700;font-size:1.1em;'>{err_count} / {len(sample_indices)}</span>"
     })
 
     # Step 6: Final key (remaining sifted bits after removing samples)
@@ -272,12 +274,13 @@ def full_bb84_exchange(n_qubits: int = 256,
 
     final_key_hex = bits_to_hex(final_key)
 
+    key_color = "var(--cyan)" if channel_secure else "var(--red)"
     steps.append({
         "step": 6,
         "title": "Final Shared Key",
         "description": f"Remaining {len(final_key)} sifted bits form the shared secret key. "
                       f"{'Key is TRUSTED.' if channel_secure else 'Key is COMPROMISED — parties should abort.'}",
-        "detail": f"Key (hex): {final_key_hex[:32]}..."
+        "detail": f"<span style='color:var(--text-dim);text-transform:uppercase;font-size:0.9em;letter-spacing:1px;'>Key (hex):</span> <span style='font-family:var(--font-mono);color:{key_color};font-weight:700;'>{final_key_hex[:32]}...</span>"
     })
 
     return BB84Result(
